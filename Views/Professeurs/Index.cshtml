@@ -1,0 +1,86 @@
+@model IEnumerable<GestionSalleEmploiTemps.Models.Professeur>
+
+@{
+    ViewData["Title"] = "Gestion des Professeurs";
+}
+
+<div class="card-premium">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="mb-0 fw-bold">Liste des Professeurs</h4>
+            <p class="text-muted small">Gérez l'ensemble des enseignants de l'établissement</p>
+        </div>
+        <a asp-action="Create" class="btn-premium">
+            <i class="fas fa-plus me-2"></i> Ajouter un Professeur
+        </a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th class="border-0">Professeur</th>
+                    <th class="border-0">Contact</th>
+                    <th class="border-0">Historique (Dernier Cours)</th>
+                    <th class="border-0 text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model) {
+                    var lastCourse = (ViewBag.LastCourses as Dictionary<int, dynamic>)?.ContainsKey(item.Id) == true 
+                                     ? (ViewBag.LastCourses as Dictionary<int, dynamic>)[item.Id] : null;
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="rounded-circle bg-soft-primary d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; background: rgba(56, 189, 248, 0.14);">
+                                    <span class="text-primary fw-bold">@item.Nom.Substring(0,1)@item.Prenom.Substring(0,1)</span>
+                                </div>
+                                <div>
+                                    <div class="fw-semibold">@item.Nom @item.Prenom</div>
+                                    <div class="text-muted extra-small">ID: #@item.Id</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="small"><i class="far fa-envelope text-muted me-2"></i>@item.Email</div>
+                            <div class="small mt-1"><i class="fas fa-phone-alt text-muted me-2"></i>@item.Telephone</div>
+                        </td>
+                        <td>
+                            @if (lastCourse != null) {
+                                <div class="badge bg-success-soft text-success px-3 py-2 rounded-3 border-0">
+                                    <i class="fas fa-history me-1"></i> @lastCourse.Matiere
+                                    <div class="extra-small opacity-75 fw-normal mt-1 text-dark">Le @lastCourse.LastDate.ToString("dd/MM/yyyy")</div>
+                                </div>
+                            } else {
+                                <span class="text-muted small">Aucun historique</span>
+                            }
+                        </td>
+                        <td class="text-end">
+                            <div class="btn-group">
+                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-light border p-2" title="Modifier">
+                                    <i class="fas fa-edit text-primary"></i>
+                                </a>
+                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-light border p-2 text-danger" title="Supprimer">
+                                    <i class="fas fa-trash-alt"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Any()) {
+                    <tr>
+                        <td colspan="4" class="text-center py-5 text-muted">
+                            <i class="fas fa-user-friends fa-3x mb-3 opacity-25"></i>
+                            <p>Aucun professeur trouvé. Commencez par en ajouter un !</p>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<style>
+    .extra-small { font-size: 0.75rem; }
+    .bg-soft-primary { background-color: rgba(56, 189, 248, 0.14); }
+</style>

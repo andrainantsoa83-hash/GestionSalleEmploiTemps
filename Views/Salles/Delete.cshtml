@@ -1,0 +1,34 @@
+@model GestionSalleEmploiTemps.Models.Salle
+
+@{
+    ViewData["Title"] = "Supprimer la Salle";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card-premium border-danger">
+            <div class="text-center mb-4">
+                <div class="rounded-circle bg-danger-soft d-inline-flex p-3 mb-3">
+                    <i class="fas fa-trash-alt fa-2x text-danger"></i>
+                </div>
+                <h4 class="fw-bold">Supprimer la @Model.Nom ?</h4>
+                <p class="text-muted small">Attention : la suppression d'une salle peut affecter les cours qui y sont déjà planifiés.</p>
+            </div>
+
+            <ul class="list-group list-group-flush mb-4 small">
+                <li class="list-group-item d-flex justify-content-between align-items-center bg-transparent">
+                    <span class="text-muted">Capacité :</span>
+                    <span class="fw-bold">@Model.Capacite places</span>
+                </li>
+            </ul>
+
+            <form asp-action="Delete">
+                <input type="hidden" asp-for="Id" />
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-danger py-2 fw-bold">Confirmer la suppression</button>
+                    <a asp-action="Index" class="btn btn-light border btn-sm">Annuler</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

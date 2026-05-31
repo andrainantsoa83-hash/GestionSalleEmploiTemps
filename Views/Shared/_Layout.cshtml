@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Gestion Scolaire</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <i class="fas fa-calendar-alt text-primary"></i>
+            <span>Emit</span>
+        </div>
+        <nav class="sidebar-nav">
+            <a class="nav-link-custom @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Home" ? "active" : "")" 
+               asp-controller="Home" asp-action="Index">
+                <i class="fas fa-th-large"></i> Dashboard
+            </a>
+            <a class="nav-link-custom @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Professeurs" ? "active" : "")" 
+               asp-controller="Professeurs" asp-action="Index">
+                <i class="fas fa-chalkboard-teacher"></i> Professeur
+            </a>
+            <a class="nav-link-custom @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Cours" ? "active" : "")" 
+               asp-controller="Cours" asp-action="Index">
+                <i class="fas fa-book-open"></i> Cours
+            </a>
+            <a class="nav-link-custom @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Salles" ? "active" : "")" 
+               asp-controller="Salles" asp-action="Index">
+                <i class="fas fa-door-open"></i> Salle
+            </a>
+            <a class="nav-link-custom @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Cours" ? "active" : "")" 
+               asp-controller="Cours" asp-action="Index">
+                <i class="fas fa-calendar-alt"></i> Emploi du temps
+            </a>
+            <a class="nav-link-custom @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Niveaux" ? "active" : "")" 
+               asp-controller="Niveaux" asp-action="Index">
+                <i class="fas fa-layer-group"></i> Niveaux
+            </a>
+        </nav>
+        <div class="p-3 border-top border-secondary">
+            <div class="d-flex align-items-center gap-2 text-white-50">
+                <div class="stat-value text-white" style="font-size: 1rem;">Admin</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <header class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="fw-bold">@ViewData["Title"]</h2>
+            <div class="user-profile d-flex align-items-center gap-3">
+                <span class="text-muted small">@DateTime.Now.ToLongDateString()</span>
+                @if (User.Identity.IsAuthenticated)
+                {
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="text-end">
+                            <div class="fw-bold small">@User.Identity.Name</div>
+                            <form asp-controller="Account" asp-action="Logout" method="post" style="display:inline;">
+                                <button type="submit" class="btn btn-link p-0 text-danger extra-small text-decoration-none">Déconnexion</button>
+                            </form>
+                        </div>
+                        <div class="rounded-circle bg-primary text-white p-2 d-flex align-items-center justify-content-center" style="width: 35px; height: 35px;">
+                            <i class="fas fa-user-circle"></i>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <a asp-controller="Account" asp-action="Login" class="btn btn-outline-primary btn-sm rounded-pill px-3">
+                        <i class="fas fa-sign-in-alt me-1"></i> Connexion
+                    </a>
+                }
+            </div>
+        </header>
+
+        <main role="main">
+            @RenderBody()
+        </main>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

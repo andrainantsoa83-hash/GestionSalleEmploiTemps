@@ -1,0 +1,46 @@
+@model GestionSalleEmploiTemps.Models.Niveau
+
+@{
+    ViewData["Title"] = "Ajouter un Niveau";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card-premium">
+            <div class="mb-4">
+                <a asp-action="Index" class="text-decoration-none text-muted small mb-2 d-inline-block">
+                    <i class="fas fa-arrow-left me-1"></i> Retour a la liste
+                </a>
+                <h4 class="fw-bold">Nouveau Niveau</h4>
+                <p class="text-muted small">Definissez une filiere et son niveau.</p>
+            </div>
+
+            <form asp-action="Create">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3 small"></div>
+                
+                <div class="mb-3">
+                    <label asp-for="Nom" class="form-label small fw-bold">Nom du Niveau</label>
+                    <input asp-for="Nom" class="form-control form-control-premium" placeholder="ex: L1 Informatique, L2 Management..." />
+                    <span asp-validation-for="Nom" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="Description" class="form-label small fw-bold">Description (Optionnel)</label>
+                    <textarea asp-for="Description" class="form-control form-control-premium" rows="3" placeholder="ex: Developpement d'application internet et intranet"></textarea>
+                    <span asp-validation-for="Description" class="text-danger small"></span>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn-premium">
+                        <i class="fas fa-check-circle me-2"></i> Creer le niveau
+                    </button>
+                    <a asp-action="Index" class="btn btn-light border btn-sm">Annuler</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

@@ -1,0 +1,60 @@
+@model GestionSalleEmploiTemps.Models.Professeur
+
+@{
+    ViewData["Title"] = "Modifier le Professeur";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card-premium">
+            <div class="mb-4">
+                <a asp-action="Index" class="text-decoration-none text-muted small mb-2 d-inline-block">
+                    <i class="fas fa-arrow-left me-1"></i> Retour à la liste
+                </a>
+                <h4 class="fw-bold text-primary">Modifier Profil</h4>
+                <p class="text-muted small">Mise à jour des informations de @Model.Nom @Model.Prenom</p>
+            </div>
+
+            <form asp-action="Edit">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3 small"></div>
+                <input type="hidden" asp-for="Id" />
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Nom" class="form-label small fw-bold">Nom</label>
+                        <input asp-for="Nom" class="form-control form-control-premium" />
+                        <span asp-validation-for="Nom" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Prenom" class="form-label small fw-bold">Prénom</label>
+                        <input asp-for="Prenom" class="form-control form-control-premium" />
+                        <span asp-validation-for="Prenom" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Email" class="form-label small fw-bold">Adresse Email</label>
+                    <input asp-for="Email" class="form-control form-control-premium" />
+                    <span asp-validation-for="Email" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="Telephone" class="form-label small fw-bold">Numéro de Téléphone</label>
+                    <input asp-for="Telephone" class="form-control form-control-premium" />
+                    <span asp-validation-for="Telephone" class="text-danger small"></span>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn-premium">
+                        <i class="fas fa-save me-2"></i> Enregistrer les modifications
+                    </button>
+                    <a asp-action="Index" class="btn btn-light border btn-sm">Annuler</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

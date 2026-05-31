@@ -1,0 +1,86 @@
+@model GestionSalleEmploiTemps.Models.Cours
+
+@{
+    ViewData["Title"] = "Planifier un Cour";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-10 col-lg-8">
+        <div class="card-premium">
+            <div class="mb-4">
+                <a asp-action="Index" class="text-decoration-none text-muted small mb-2 d-inline-block">
+                    <i class="fas fa-arrow-left me-1"></i> Retour au planning
+                </a>
+                <h4 class="fw-bold">Nouvelle Séance de Cour</h4>
+                <p class="text-muted small">Organisez une session en associant un professeur et une salle.</p>
+            </div>
+
+            <form asp-action="Create">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger small py-2 mb-4"></div>
+                
+                <div class="mb-4">
+                    <label asp-for="Matiere" class="form-label small fw-bold">Nom de la Matière</label>
+                    <input asp-for="Matiere" class="form-control form-control-premium text-primary fw-bold" placeholder="Ex: Mathématiques, Algorithmique..." />
+                    <span asp-validation-for="Matiere" class="text-danger small"></span>
+                </div>
+
+                <div class="row mb-4">
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <div class="col-md-6 mb-3 mb-md-0">
+                            <label asp-for="ProfesseurId" class="form-label small fw-bold">Professeur</label>
+                            <select asp-for="ProfesseurId" class="form-select form-control-premium" asp-items="ViewBag.ProfesseurId">
+                                <option value="">-- Choisir un professeur --</option>
+                            </select>
+                            <span asp-validation-for="ProfesseurId" class="text-danger small"></span>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="col-md-6 mb-3 mb-md-0">
+                            <label class="form-label small fw-bold">Professeur (Connecté)</label>
+                            <input type="text" class="form-control form-control-premium bg-light" value="@User.Identity.Name" readonly />
+                            <input asp-for="ProfesseurId" type="hidden" />
+                        </div>
+                    }
+                    <div class="col-md-3 mb-3 mb-md-0">
+                        <label asp-for="NiveauId" class="form-label small fw-bold">Niveau</label>
+                        <select asp-for="NiveauId" class="form-select form-control-premium" asp-items="ViewBag.NiveauId">
+                            <option value="">-- Niveau --</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label asp-for="SalleId" class="form-label small fw-bold">Salle</label>
+                        <select asp-for="SalleId" class="form-select form-control-premium" asp-items="ViewBag.SalleId">
+                            <option value="">-- Salle --</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row mb-4 p-3 rounded-4" style="background: rgba(56, 189, 248, 0.06); border: 1px dashed rgba(2, 132, 199, 0.24);">
+                    <div class="col-md-6 mb-3 mb-md-0">
+                        <label asp-for="HeureDebut" class="form-label small fw-bold">Date & Heure de Début</label>
+                        <input asp-for="HeureDebut" class="form-control form-control-premium" type="datetime-local" />
+                        <span asp-validation-for="HeureDebut" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="HeureFin" class="form-label small fw-bold">Date & Heure de Fin</label>
+                        <input asp-for="HeureFin" class="form-control form-control-premium" type="datetime-local" />
+                        <span asp-validation-for="HeureFin" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn-premium py-3">
+                        <i class="fas fa-check-circle me-2"></i> Confirmer la Planification
+                    </button>
+                    <a asp-action="Index" class="btn btn-light border btn-sm">Annuler</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

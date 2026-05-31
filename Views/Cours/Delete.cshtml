@@ -1,0 +1,60 @@
+@model GestionSalleEmploiTemps.Models.Cours
+
+@{
+    ViewData["Title"] = "Annuler la Séance";
+    var professeur = ViewBag.Professeur as GestionSalleEmploiTemps.Models.Professeur;
+    var salle = ViewBag.Salle as GestionSalleEmploiTemps.Models.Salle;
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card-premium">
+            <div class="text-center mb-4">
+                <div class="rounded-circle bg-danger-soft text-danger d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px; background: rgba(220, 53, 69, 0.1);">
+                    <i class="fas fa-calendar-times fa-3x"></i>
+                </div>
+                <h4 class="fw-bold">Annuler cette séance ?</h4>
+                <p class="text-muted">Cette action est irréversible et libérera le créneau dans l'emploi du temps.</p>
+            </div>
+
+            <div class="p-4 rounded-4 bg-light mb-4 border-start border-4 border-danger">
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label class="extra-small fw-bold text-muted text-uppercase">Matière</label>
+                        <div class="fw-bold text-dark">@Model.Matiere</div>
+                    </div>
+                    <div class="col-6">
+                        <label class="extra-small fw-bold text-muted text-uppercase">Professeur</label>
+                        <div class="small">@(professeur != null ? $"{professeur.Nom} {professeur.Prenom}" : "N/A")</div>
+                    </div>
+                    <div class="col-6">
+                        <label class="extra-small fw-bold text-muted text-uppercase">Salle</label>
+                        <div class="small">@(salle != null ? salle.Nom : "N/A")</div>
+                    </div>
+                    <div class="col-12 border-top pt-2">
+                        <label class="extra-small fw-bold text-muted text-uppercase">Horaire</label>
+                        <div class="small">
+                            <i class="far fa-clock me-1"></i> 
+                            @Model.HeureDebut.ToString("dddd dd MMMM") à @Model.HeureDebut.ToString("HH:mm")
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <form asp-action="Delete">
+                <input type="hidden" asp-for="Id" />
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-danger py-3 rounded-3 fw-bold shadow-sm">
+                        <i class="fas fa-trash-alt me-2"></i> Confirmer la Suppression
+                    </button>
+                    <a asp-action="Index" class="btn btn-light border py-2">Retour au planning</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .bg-danger-soft { background-color: rgba(220, 53, 69, 0.1); }
+    .extra-small { font-size: 0.7rem; }
+</style>

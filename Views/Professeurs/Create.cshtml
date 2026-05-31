@@ -1,0 +1,74 @@
+@model GestionSalleEmploiTemps.Models.Professeur
+
+@{
+    ViewData["Title"] = "Ajouter un Professeur";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card-premium">
+            <div class="mb-4">
+                <a asp-action="Index" class="text-decoration-none text-muted small mb-2 d-inline-block">
+                    <i class="fas fa-arrow-left me-1"></i> Retour à la liste
+                </a>
+                <h4 class="fw-bold">Nouveau Professeur</h4>
+                <p class="text-muted small">Remplissez les informations ci-dessous pour enregistrer un nouvel enseignant.</p>
+            </div>
+
+            <form asp-action="Create">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3 small"></div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Nom" class="form-label small fw-bold">Nom</label>
+                        <input asp-for="Nom" class="form-control form-control-premium" placeholder="Ex: Dupont" />
+                        <span asp-validation-for="Nom" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Prenom" class="form-label small fw-bold">Prénom</label>
+                        <input asp-for="Prenom" class="form-control form-control-premium" placeholder="Ex: Jean" />
+                        <span asp-validation-for="Prenom" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Email" class="form-label small fw-bold">Adresse Email</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-end-0"><i class="far fa-envelope text-muted"></i></span>
+                        <input asp-for="Email" class="form-control form-control-premium border-start-0" placeholder="jean.dupont@ecole.com" />
+                    </div>
+                    <span asp-validation-for="Email" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="Telephone" class="form-label small fw-bold">Numéro de Téléphone</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-end-0"><i class="fas fa-phone-alt text-muted"></i></span>
+                        <input asp-for="Telephone" class="form-control form-control-premium border-start-0" placeholder="+261 34 00 000 00" />
+                    </div>
+                    <span asp-validation-for="Telephone" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="MotDePasse" class="form-label small fw-bold">Mot de passe par défaut</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-end-0"><i class="fas fa-key text-muted"></i></span>
+                        <input asp-for="MotDePasse" type="text" class="form-control form-control-premium border-start-0" placeholder="Mot de passe temporaire" />
+                    </div>
+                    <span asp-validation-for="MotDePasse" class="text-danger small"></span>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn-premium">
+                        <i class="fas fa-save me-2"></i> Enregistrer le Professeur
+                    </button>
+                    <a asp-action="Index" class="btn btn-light border btn-sm">Annuler</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

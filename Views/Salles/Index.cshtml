@@ -1,0 +1,130 @@
+@model IEnumerable<GestionSalleEmploiTemps.Models.Salle>
+
+@{
+    ViewData["Title"] = "Gestion des Salles";
+    var occupiedIds = ViewBag.OccupiedSalleIds as List<int>;
+    var buildings = new[] { "A", "B", "C", "D" };
+}
+
+<div class="row align-items-center mb-4">
+    <div class="col-md-6">
+        <h4 class="fw-bold mb-0">Patrimoine Immobilier</h4>
+        <p class="text-muted small">Répartition des salles par bâtiment (A, B, C, D).</p>
+    </div>
+    <div class="col-md-6 text-md-end">
+        <a asp-action="Create" class="btn-premium">
+            <i class="fas fa-plus me-2"></i> Nouvelle Salle
+        </a>
+    </div>
+</div>
+
+<ul class="nav nav-pills-premium mb-4" id="buildingTabs" role="tablist">
+    @foreach (var b in buildings)
+    {
+        <li class="nav-item" role="presentation">
+            <button class="nav-link @(b == "A" ? "active" : "")" id="tab-@b" data-bs-toggle="pill" data-bs-target="#content-@b" type="button" role="tab">
+                Bâtiment @b
+                <span class="badge bg-white text-primary ms-2">@Model.Count(s => s.Batiment == b)</span>
+            </button>
+        </li>
+    }
+</ul>
+
+<div class="tab-content" id="buildingTabsContent">
+    @foreach (var b in buildings)
+    {
+        <div class="tab-pane fade @(b == "A" ? "show active" : "")" id="content-@b" role="tabpanel">
+            <div class="row mb-3">
+                <div class="col-12">
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <i class="fas fa-info-circle text-primary"></i>
+                        <span class="small fw-bold">
+                            @if (b == "A") { <text>Administration & Bibliothèque</text> }
+                            else if (b == "B") { <text>Salles de Classe (14 salles)</text> }
+                            else if (b == "C") { <text>Amphithéâtre + 2 Salles de Classe</text> }
+                            else if (b == "D") { <text>4 Salles de Classe + Salle 3D</text> }
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dashboard-grid">
+                @foreach (var item in Model.Where(s => s.Batiment == b))
+                {
+                    bool isOccupiedNow = occupiedIds != null && occupiedIds.Contains(item.Id);
+                    <div class="card-premium h-100 mb-0 @(isOccupiedNow ? "border-danger-soft" : "border-success-soft")">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div class="rounded-3 p-3 @(isOccupiedNow ? "bg-danger-soft" : "bg-success-soft")">
+                                <i class="fas @(item.TypeSalle == "Amphithéâtre" ? "fa-landmark" : (item.TypeSalle == "Salle 3D" ? "fa-cube" : "fa-school")) fa-2x @(isOccupiedNow ? "text-danger" : "text-success")"></i>
+                            </div>
+                            <div class="text-end">
+                                @if (isOccupiedNow) {
+                                    <span class="badge bg-danger text-white rounded-pill px-3 extra-small mb-1 d-block">OCCUPÉE</span>
+                                } else {
+                                    <span class="badge bg-success text-white rounded-pill px-3 extra-small mb-1 d-block">LIBRE</span>
+                                }
+                                <span class="badge bg-primary-soft text-primary extra-small">@item.TypeSalle</span>
+                            </div>
+                        </div>
+                        
+                        <h5 class="fw-bold mb-1">@item.Nom</h5>
+                        <div class="d-flex align-items-center gap-2 text-muted mb-4 small">
+                            <i class="fas fa-users"></i>
+                            <span>Capacité: @item.Capacite places</span>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mt-auto pt-3 border-top">
+                            <div class="btn-group">
+                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-light border" title="Modifier">
+                                    <i class="fas fa-edit text-primary"></i>
+                                </a>
+                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-light border" title="Supprimer">
+                                    <i class="fas fa-trash-alt text-danger"></i>
+                                </a>
+                            </div>
+                            <a asp-controller="Cours" asp-action="Index" class="text-primary extra-small text-decoration-none fw-bold">
+                                PLANNING <i class="fas fa-calendar-alt ms-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                }
+                @if (!Model.Any(s => s.Batiment == b))
+                {
+                    <div class="col-12 text-center py-5 card-premium">
+                        <i class="fas fa-door-closed fa-3x text-muted opacity-25 mb-3"></i>
+                        <p class="text-muted">Aucune salle enregistrée dans le bâtiment @b.</p>
+                        <a asp-action="Create" class="btn btn-sm btn-outline-primary rounded-pill">Ajouter une salle</a>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+<style>
+    .nav-pills-premium {
+        background: #fff;
+        padding: 0.5rem;
+        border-radius: 12px;
+        box-shadow: var(--card-shadow);
+        display: inline-flex;
+        gap: 0.5rem;
+    }
+    .nav-pills-premium .nav-link {
+        border-radius: 8px;
+        color: var(--secondary-color);
+        font-weight: 600;
+        padding: 0.6rem 1.5rem;
+        transition: all 0.2s;
+    }
+    .nav-pills-premium .nav-link.active {
+        background-color: var(--primary-color);
+        color: #fff;
+        box-shadow: 0 4px 10px rgba(2, 132, 199, 0.28);
+    }
+    .bg-success-soft { background-color: rgba(25, 135, 84, 0.05); }
+    .bg-danger-soft { background-color: rgba(220, 53, 69, 0.05); }
+    .border-success-soft { border: 1px solid rgba(25, 135, 84, 0.1); }
+    .border-danger-soft { border: 1px solid rgba(220, 53, 69, 0.1); }
+    .extra-small { font-size: 0.7rem; }
+</style>

@@ -1,0 +1,122 @@
+@model GestionSalleEmploiTemps.Models.Professeur
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Inscription - Emit</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <style>
+        body {
+            background: linear-gradient(135deg, #0f2742 0%, #0369a1 58%, #38bdf8 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            padding: 2rem;
+        }
+        .register-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.24);
+            border-radius: 24px;
+            padding: 3rem;
+            width: 100%;
+            max-width: 600px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.8s ease-out;
+        }
+        @@keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .form-label { color: rgba(255, 255, 255, 0.7); font-size: 0.8rem; font-weight: 600; }
+        .form-control-dark {
+            background: rgba(15, 39, 66, 0.48);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            border-radius: 12px;
+            padding: 0.65rem 1rem;
+        }
+        .form-control-dark:focus {
+            background: rgba(15, 39, 66, 0.62);
+            border-color: #38bdf8;
+            box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.24);
+            color: white;
+        }
+        .btn-register {
+            background: linear-gradient(to right, #0284c7, #38bdf8);
+            border: none;
+            border-radius: 12px;
+            padding: 0.875rem;
+            font-weight: 700;
+            color: white;
+            transition: all 0.3s;
+        }
+        .btn-register:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(2, 132, 199, 0.42);
+        }
+    </style>
+</head>
+<body>
+    <div class="register-card">
+        <div class="text-center mb-5">
+            <h2 class="text-white fw-800">Rejoignez Emit</h2>
+            <p class="text-white-50">Créez votre compte professeur en quelques secondes</p>
+        </div>
+
+        <form asp-action="Register" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger small mb-3"></div>
+            
+            <div class="row g-3">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Nom" class="form-label text-uppercase">Nom</label>
+                    <input asp-for="Nom" class="form-control form-control-dark" placeholder="Ex: Dupont" required />
+                    <span asp-validation-for="Nom" class="text-danger extra-small"></span>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Prenom" class="form-label text-uppercase">Prénom</label>
+                    <input asp-for="Prenom" class="form-control form-control-dark" placeholder="Ex: Jean" required />
+                    <span asp-validation-for="Prenom" class="text-danger extra-small"></span>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Email" class="form-label text-uppercase">Adresse Email académique</label>
+                <input asp-for="Email" class="form-control form-control-dark" placeholder="jean.dupont@test.com" required />
+                <span asp-validation-for="Email" class="text-danger extra-small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Telephone" class="form-label text-uppercase">Téléphone</label>
+                <input asp-for="Telephone" class="form-control form-control-dark" placeholder="03XXXXXXXX" required />
+                <span asp-validation-for="Telephone" class="text-danger extra-small"></span>
+            </div>
+
+            <div class="mb-4">
+                <label asp-for="MotDePasse" class="form-label text-uppercase">Mot de passe</label>
+                <input asp-for="MotDePasse" type="password" class="form-control form-control-dark" placeholder="Minimum 6 caractères" required />
+                <span asp-validation-for="MotDePasse" class="text-danger extra-small"></span>
+            </div>
+
+            <div class="d-grid mt-4">
+                <button type="submit" class="btn btn-register">Créer mon compte <i class="fas fa-user-plus ms-2"></i></button>
+            </div>
+        </form>
+
+        <div class="text-center mt-4">
+            <p class="small text-white-50">Déjà inscrit ? <a asp-action="Login" class="text-white fw-bold text-decoration-none">Se connecter</a></p>
+        </div>
+    </div>
+</body>
+</html>

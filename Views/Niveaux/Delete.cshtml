@@ -1,0 +1,32 @@
+@model GestionSalleEmploiTemps.Models.Niveau
+
+@{
+    ViewData["Title"] = "Supprimer le Niveau";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-5">
+        <div class="card-premium border-danger">
+            <div class="text-center mb-4">
+                <div class="bg-danger-soft rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                    <i class="fas fa-exclamation-triangle fa-2x text-danger"></i>
+                </div>
+                <h4 class="fw-bold">Supprimer le niveau ?</h4>
+                <p class="text-muted">Êtes-vous sûr de vouloir supprimer le niveau <strong class="text-dark">@Model.Nom</strong> ?</p>
+                <div class="alert alert-warning small border-0 mb-0">
+                    <i class="fas fa-info-circle me-1"></i> Cette action supprimera également les cours associés à ce niveau.
+                </div>
+            </div>
+
+            <form asp-action="Delete">
+                <input type="hidden" asp-for="Id" />
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-danger rounded-pill fw-bold py-2">
+                        <i class="fas fa-trash-alt me-2"></i> Confirmer la suppression
+                    </button>
+                    <a asp-action="Index" class="btn btn-light border rounded-pill btn-sm">Annuler et revenir</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
