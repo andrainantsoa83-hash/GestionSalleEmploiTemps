@@ -7,8 +7,11 @@ using Microsoft.EntityFrameworkCore;
 using GestionSalleEmploiTemps.Data;
 using GestionSalleEmploiTemps.Models;
 
+using Microsoft.AspNetCore.Authorization;
+
 namespace GestionSalleEmploiTemps.Controllers
 {
+    [AllowAnonymous]
     public class AccountController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -34,10 +37,20 @@ namespace GestionSalleEmploiTemps.Controllers
         public async Task<IActionResult> Login(string email, string password)
         {
             var prof = await _context.Professeurs
-                .FirstOrDefaultAsync(p => p.Email == email);
+                .FirstOrDefaultAsync(p => p.Email == email || p.Matricule == email);
 
             if (prof != null && IsValidPassword(prof, password))
             {
+                if (!prof.EstActif)
+                {
+                    ViewBag.Error = "Votre compte est inactif. Veuillez contacter l'administrateur.";
+                    return View();
+                }
+
+                prof.DerniereConnexion = DateTime.Now;
+                _context.Update(prof);
+                await _context.SaveChangesAsync();
+
                 var claims = new List<Claim>
                 {
                     new Claim(ClaimTypes.NameIdentifier, prof.Id.ToString()),
@@ -74,7 +87,7 @@ namespace GestionSalleEmploiTemps.Controllers
         // POST: Account/Register
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Register([Bind("Nom,Prenom,Email,Telephone,MotDePasse")] Professeur professeur)
+        public async Task<IActionResult> Register([Bind("Nom,Prenom,Email,Telephone,MotDePasse,Sexe,DateRecrutement,Statut,Fonction,Departement,Diplome,NomUtilisateur")] Professeur professeur)
         {
             if (ModelState.IsValid)
             {
@@ -85,9 +98,19 @@ namespace GestionSalleEmploiTemps.Controllers
                     return View(professeur);
                 }
 
+                // Génération du matricule
+                int ordre = await _context.Professeurs.CountAsync() + 1;
+                string sexe = professeur.Sexe == "H" ? "H" : (professeur.Sexe == "F" ? "F" : "X");
+                string annee = professeur.DateRecrutement.HasValue ? professeur.DateRecrutement.Value.ToString("yy") : DateTime.Now.ToString("yy");
+                professeur.Matricule = $"{ordre:D3}{sexe}EMIT{annee}";
+                professeur.EstActif = true;
+
                 professeur.MotDePasse = _passwordHasher.HashPassword(professeur, professeur.MotDePasse);
                 _context.Add(professeur);
                 await _context.SaveChangesAsync();
+                
+                TempData["SuccessMessage"] = $"Inscription réussie ! Votre matricule est : {professeur.Matricule}. Veuillez l'utiliser pour vous connecter.";
+                
                 return RedirectToAction(nameof(Login));
             }
             return View(professeur);

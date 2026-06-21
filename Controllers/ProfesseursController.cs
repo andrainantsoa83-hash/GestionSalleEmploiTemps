@@ -16,13 +16,54 @@ namespace GestionSalleEmploiTemps.Controllers
             _context = context;
         }
 
-        // GET: Professeurs
-        public async Task<IActionResult> Index()
+        // GET: Professeurs/Profil
+        public async Task<IActionResult> Profil()
         {
-            var professeurs = await _context.Professeurs.ToListAsync();
+            var currentProfIdStr = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(currentProfIdStr)) return NotFound();
             
-            // Récupérer le dernier cours pour chaque professeur
+            if (int.TryParse(currentProfIdStr, out int currentProfId))
+            {
+                var professeur = await _context.Professeurs.FindAsync(currentProfId);
+                if (professeur == null) return NotFound();
+                
+                return View("Edit", professeur);
+            }
+            return NotFound();
+        }
+
+        // GET: Professeurs
+        public async Task<IActionResult> Index(string searchString, int pageNumber = 1)
+        {
+            ViewData["CurrentFilter"] = searchString;
+
+            var query = _context.Professeurs.AsQueryable();
+
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                query = query.Where(p => p.Nom.Contains(searchString) || p.Prenom.Contains(searchString));
+            }
+
+            // Trier par Alphabet (Nom puis Prénom)
+            query = query.OrderBy(p => p.Nom).ThenBy(p => p.Prenom);
+
+            int pageSize = 4;
+            var totalItems = await query.CountAsync();
+            var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+
+            // S'assurer que le numéro de page est valide
+            if (pageNumber < 1) pageNumber = 1;
+            if (pageNumber > totalPages && totalPages > 0) pageNumber = totalPages;
+
+            var professeurs = await query
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+            
+            // Récupérer le dernier cours pour chaque professeur de la page actuelle
+            var profIds = professeurs.Select(p => p.Id).ToList();
             var lastCourses = await _context.Cours
+                .Where(c => profIds.Contains(c.ProfesseurId))
                 .GroupBy(c => c.ProfesseurId)
                 .Select(g => new { 
                     ProfId = g.Key, 
@@ -32,6 +73,9 @@ namespace GestionSalleEmploiTemps.Controllers
                 .ToDictionaryAsync(x => x.ProfId, x => new { x.LastDate, x.Matiere });
 
             ViewBag.LastCourses = lastCourses;
+            ViewBag.TotalPages = totalPages;
+            ViewBag.PageNumber = pageNumber;
+            
             return View(professeurs);
         }
 

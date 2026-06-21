@@ -64,6 +64,10 @@
                                     <span class="badge bg-success text-white rounded-pill px-3 extra-small mb-1 d-block">LIBRE</span>
                                 }
                                 <span class="badge bg-primary-soft text-primary extra-small">@item.TypeSalle</span>
+                                @if (item.NiveauId.HasValue && ViewBag.NiveauxDict != null && ((Dictionary<int, string>)ViewBag.NiveauxDict).ContainsKey(item.NiveauId.Value))
+                                {
+                                    <span class="badge bg-dark text-white extra-small mt-1 d-block">Niveau: @(((Dictionary<int, string>)ViewBag.NiveauxDict)[item.NiveauId.Value])</span>
+                                }
                             </div>
                         </div>
                         
@@ -82,9 +86,12 @@
                                     <i class="fas fa-trash-alt text-danger"></i>
                                 </a>
                             </div>
-                            <a asp-controller="Cours" asp-action="Index" class="text-primary extra-small text-decoration-none fw-bold">
-                                PLANNING <i class="fas fa-calendar-alt ms-1"></i>
-                            </a>
+                            @if (b != "A")
+                            {
+                                <a asp-controller="Cours" asp-action="Index" class="text-primary extra-small text-decoration-none fw-bold">
+                                    PLANNING <i class="fas fa-calendar-alt ms-1"></i>
+                                </a>
+                            }
                         </div>
                     </div>
                 }

@@ -11,18 +11,13 @@
 </head>
 <body>
     <div class="sidebar">
-        <div class="sidebar-header">
-            <i class="fas fa-calendar-alt text-primary"></i>
-            <span>Emit</span>
+        <div class="sidebar-header d-flex justify-content-center py-3">
+            <img src="~/images.jpg" alt="Logo EMIT" style="max-width: 65px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);" />
         </div>
         <nav class="sidebar-nav">
             <a class="nav-link-custom @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Home" ? "active" : "")" 
                asp-controller="Home" asp-action="Index">
                 <i class="fas fa-th-large"></i> Dashboard
-            </a>
-            <a class="nav-link-custom @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Professeurs" ? "active" : "")" 
-               asp-controller="Professeurs" asp-action="Index">
-                <i class="fas fa-chalkboard-teacher"></i> Professeur
             </a>
             <a class="nav-link-custom @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Cours" ? "active" : "")" 
                asp-controller="Cours" asp-action="Index">
@@ -40,9 +35,13 @@
                asp-controller="Niveaux" asp-action="Index">
                 <i class="fas fa-layer-group"></i> Niveaux
             </a>
+            <a class="nav-link-custom @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Professeurs" && ViewContext.RouteData.Values["Action"]?.ToString() == "Profil" ? "active" : "")" 
+               asp-controller="Professeurs" asp-action="Profil">
+                <i class="fas fa-user-circle"></i> Profil
+            </a>
         </nav>
         <div class="p-3 border-top border-secondary">
-            <div class="d-flex align-items-center gap-2 text-white-50">
+            <div class="d-flex align-items-center gap-2 text-white">
                 <div class="stat-value text-white" style="font-size: 1rem;">Admin</div>
             </div>
         </div>
@@ -56,7 +55,10 @@
                 @if (User.Identity.IsAuthenticated)
                 {
                     <div class="d-flex align-items-center gap-2">
-                        <div class="text-end">
+                        <button id="darkModeToggle" class="btn btn-outline-secondary btn-sm rounded-circle d-flex align-items-center justify-content-center" style="width: 35px; height: 35px; border-color: rgba(14, 165, 233, 0.3); color: var(--navy-color);">
+                            <i class="fas fa-moon"></i>
+                        </button>
+                        <div class="text-end ms-2">
                             <div class="fw-bold small">@User.Identity.Name</div>
                             <form asp-controller="Account" asp-action="Logout" method="post" style="display:inline;">
                                 <button type="submit" class="btn btn-link p-0 text-danger extra-small text-decoration-none">Déconnexion</button>
@@ -84,6 +86,30 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const darkModeToggle = document.getElementById('darkModeToggle');
+            const body = document.body;
+            
+            if (localStorage.getItem('darkMode') === 'enabled') {
+                body.classList.add('dark-mode');
+                if (darkModeToggle) darkModeToggle.innerHTML = '<i class="fas fa-sun text-warning"></i>';
+            }
+            
+            if (darkModeToggle) {
+                darkModeToggle.addEventListener('click', () => {
+                    body.classList.toggle('dark-mode');
+                    if (body.classList.contains('dark-mode')) {
+                        localStorage.setItem('darkMode', 'enabled');
+                        darkModeToggle.innerHTML = '<i class="fas fa-sun text-warning"></i>';
+                    } else {
+                        localStorage.setItem('darkMode', null);
+                        darkModeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+                    }
+                });
+            }
+        });
+    </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

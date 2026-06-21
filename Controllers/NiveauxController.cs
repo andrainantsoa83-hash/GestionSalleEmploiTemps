@@ -18,7 +18,17 @@ namespace GestionSalleEmploiTemps.Controllers
 
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Niveaux.ToListAsync());
+            var niveaux = await _context.Niveaux.ToListAsync();
+            
+            // Récupérer les salles associées à chaque niveau
+            var sallesParNiveau = await _context.Salles
+                .Where(s => s.NiveauId != null)
+                .GroupBy(s => s.NiveauId)
+                .ToDictionaryAsync(g => g.Key.Value, g => g.Select(s => s.Nom).ToList());
+                
+            ViewBag.SallesParNiveau = sallesParNiveau;
+
+            return View(niveaux);
         }
 
         public IActionResult Create()

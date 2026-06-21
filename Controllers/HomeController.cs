@@ -23,9 +23,17 @@ public class HomeController : Controller
         var salleCount = await _context.Salles.CountAsync();
         var coursCount = await _context.Cours.CountAsync();
 
+        var now = DateTime.Now;
+        var occupiedSallesNowCount = await _context.Cours
+            .Where(c => c.HeureDebut <= now && c.HeureFin > now)
+            .Select(c => c.SalleId)
+            .Distinct()
+            .CountAsync();
+        
         ViewBag.ProfCount = profCount;
         ViewBag.SalleCount = salleCount;
         ViewBag.CoursCount = coursCount;
+        ViewBag.SallesDisponiblesActuellement = salleCount - occupiedSallesNowCount;
 
         // Taux d'occupation global (approximation: 5 jours * 4 slots * nbSalles)
         int totalPossibleSlots = 5 * 4 * (salleCount > 0 ? salleCount : 1);

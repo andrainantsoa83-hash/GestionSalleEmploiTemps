@@ -20,12 +20,17 @@ namespace GestionSalleEmploiTemps.Controllers
         }
 
         // GET: Cours
-        public async Task<IActionResult> Index(int? niveauId, int? profFilterId)
+        public async Task<IActionResult> Index(int? niveauId, int? profFilterId, DateTime? weekDate)
         {
             var isProf = User.IsInRole("Professeur");
             var currentProfId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
-            var coursQuery = _context.Cours.AsQueryable();
+            DateTime currentDate = weekDate ?? DateTime.Today;
+            int diff = (7 + (currentDate.DayOfWeek - DayOfWeek.Monday)) % 7;
+            DateTime monday = currentDate.AddDays(-1 * diff).Date;
+            DateTime saturday = monday.AddDays(5);
+
+            var coursQuery = _context.Cours.Where(c => c.HeureDebut >= monday && c.HeureDebut < saturday);
             
             if (isProf)
             {
@@ -36,6 +41,15 @@ namespace GestionSalleEmploiTemps.Controllers
                 coursQuery = coursQuery.Where(c => c.ProfesseurId == profFilterId.Value);
             }
 
+            if (!niveauId.HasValue)
+            {
+                var firstNiveau = await _context.Niveaux.FirstOrDefaultAsync();
+                if (firstNiveau != null)
+                {
+                    niveauId = firstNiveau.Id;
+                }
+            }
+
             if (niveauId.HasValue)
             {
                 coursQuery = coursQuery.Where(c => c.NiveauId == niveauId.Value);
@@ -44,14 +58,15 @@ namespace GestionSalleEmploiTemps.Controllers
             ViewBag.Niveaux = await _context.Niveaux.ToListAsync();
             ViewBag.SelectedNiveauId = niveauId;
             ViewBag.SelectedProfFilterId = profFilterId;
+            ViewBag.CurrentWeekDate = monday;
             
             ViewBag.Professeurs = await _context.Professeurs.ToDictionaryAsync(p => p.Id, p => $"{p.Nom} {p.Prenom}");
             ViewBag.Salles = await _context.Salles.ToDictionaryAsync(s => s.Id, s => s.Nom);
             ViewBag.PlanningHours = PlanningHours;
 
-            // Calculer la disponibilité des salles pour chaque créneau
+            // Calculer la disponibilité des salles pour chaque créneau de cette semaine spécifique
             var allSalles = await _context.Salles.ToListAsync();
-            var allCoursGlobal = await _context.Cours.ToListAsync();
+            var allCoursGlobal = await _context.Cours.Where(c => c.HeureDebut >= monday && c.HeureDebut < saturday).ToListAsync();
             var roomAvailability = new Dictionary<string, List<string>>();
 
             for (int hourIndex = 0; hourIndex < PlanningHours.Length; hourIndex++)
@@ -73,8 +88,8 @@ namespace GestionSalleEmploiTemps.Controllers
                         .ToList();
 
                     var freeSallesInSlot = allSalles
-                        .Where(s => !occupiedInSlot.Contains(s.Id))
-                        .Select(s => s.Nom)
+                        .Where(s => !occupiedInSlot.Contains(s.Id) && s.Batiment != "A")
+                        .Select(s => $"Bâtiment {s.Batiment} - {s.Nom}")
                         .ToList();
 
                     roomAvailability[$"{d}-{sHr}"] = freeSallesInSlot;
@@ -87,7 +102,7 @@ namespace GestionSalleEmploiTemps.Controllers
         }
 
         // GET: Cours/Create
-        public async Task<IActionResult> Create(int? day, int? hour, int? endHour)
+        public async Task<IActionResult> Create(int? day, int? hour, int? endHour, DateTime? weekDate)
         {
             var isAdmin = User.IsInRole("Admin");
             var currentProfId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
@@ -97,12 +112,14 @@ namespace GestionSalleEmploiTemps.Controllers
 
             if (day.HasValue && hour.HasValue)
             {
-                // Trouver la date la plus proche correspondant au jour et à l'heure
-                DateTime targetDate = DateTime.Today;
-                while ((int)targetDate.DayOfWeek != day.Value)
-                {
-                    targetDate = targetDate.AddDays(1);
-                }
+                DateTime targetDate = weekDate ?? DateTime.Today;
+                // Aller au lundi de la semaine
+                int diff = (7 + (targetDate.DayOfWeek - DayOfWeek.Monday)) % 7;
+                targetDate = targetDate.AddDays(-1 * diff).Date;
+                
+                // Ajouter les jours pour arriver au jour demandé (day = 1 pour lundi, 2 pour mardi...)
+                targetDate = targetDate.AddDays(day.Value - 1);
+
                 cours.HeureDebut = targetDate.AddHours(hour.Value);
                 cours.HeureFin = targetDate.AddHours(endHour ?? hour.Value + 2);
             }
@@ -128,6 +145,10 @@ namespace GestionSalleEmploiTemps.Controllers
             {
                 cours.ProfesseurId = currentProfId;
             }
+
+            ModelState.Remove("Professeur");
+            ModelState.Remove("Salle");
+            ModelState.Remove("Niveau");
 
             if (ModelState.IsValid)
             {
@@ -160,6 +181,10 @@ namespace GestionSalleEmploiTemps.Controllers
             var cours = await _context.Cours.FindAsync(id);
             if (cours == null) return NotFound();
 
+            var isAdmin = User.IsInRole("Admin");
+            var currentProfId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            if (!isAdmin && cours.ProfesseurId != currentProfId) return Unauthorized();
+
             await LoadFormSelectLists(cours, cours.Id);
             return View(cours);
         }
@@ -175,6 +200,10 @@ namespace GestionSalleEmploiTemps.Controllers
             var currentProfId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
             if (!isAdmin) cours.ProfesseurId = currentProfId;
+
+            ModelState.Remove("Professeur");
+            ModelState.Remove("Salle");
+            ModelState.Remove("Niveau");
 
             if (ModelState.IsValid)
             {
@@ -221,6 +250,10 @@ namespace GestionSalleEmploiTemps.Controllers
             {
                 return NotFound();
             }
+
+            var isAdmin = User.IsInRole("Admin");
+            var currentProfId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            if (!isAdmin && cours.ProfesseurId != currentProfId) return Unauthorized();
 
             ViewBag.Professeur = await _context.Professeurs.FirstOrDefaultAsync(p => p.Id == cours.ProfesseurId);
             ViewBag.Salle = await _context.Salles.FirstOrDefaultAsync(s => s.Id == cours.SalleId);
@@ -289,12 +322,38 @@ namespace GestionSalleEmploiTemps.Controllers
                 .ToListAsync();
 
             var sallesDisponibles = await _context.Salles
-                .Where(s => !occupiedSalleIds.Contains(s.Id) || s.Id == cours.SalleId)
+                .Where(s => s.Batiment != "A" && (!occupiedSalleIds.Contains(s.Id) || s.Id == cours.SalleId))
+                .OrderByDescending(s => s.NiveauId == cours.NiveauId) // La salle dédiée en premier
+                .ThenBy(s => s.Batiment).ThenBy(s => s.Nom)
                 .ToListAsync();
 
             ViewData["ProfesseurId"] = new SelectList(_context.Professeurs, "Id", "Nom", cours.ProfesseurId);
             ViewData["SalleId"] = new SelectList(sallesDisponibles, "Id", "Nom", cours.SalleId);
             ViewData["NiveauId"] = new SelectList(_context.Niveaux, "Id", "Nom", cours.NiveauId);
+        }
+
+        // GET: Cours/GetSallesDisponibles
+        [HttpGet]
+        public async Task<IActionResult> GetSallesDisponibles(DateTime debut, DateTime fin, int? excludedCoursId, int? niveauId)
+        {
+            var occupiedSalleIds = await _context.Cours
+                .Where(c => (!excludedCoursId.HasValue || c.Id != excludedCoursId.Value) &&
+                            debut < c.HeureFin &&
+                            fin > c.HeureDebut)
+                .Select(c => c.SalleId)
+                .ToListAsync();
+
+            var sallesDisponiblesQuery = _context.Salles
+                .Where(s => s.Batiment != "A" && !occupiedSalleIds.Contains(s.Id));
+
+            // On ne filtre pas strictement, on met juste la salle du niveau en premier
+            var sallesDisponibles = await sallesDisponiblesQuery
+                .OrderByDescending(s => niveauId.HasValue && s.NiveauId == niveauId.Value)
+                .ThenBy(s => s.Batiment).ThenBy(s => s.Nom)
+                .Select(s => new { id = s.Id, nom = $"Bâtiment {s.Batiment} - {s.Nom}" + (niveauId.HasValue && s.NiveauId == niveauId.Value ? " (Salle Préférée)" : "") })
+                .ToListAsync();
+
+            return Json(sallesDisponibles);
         }
     }
 }

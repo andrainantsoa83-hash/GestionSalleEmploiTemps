@@ -48,25 +48,39 @@
                         <select asp-for="NiveauId" class="form-select form-control-premium" asp-items="ViewBag.NiveauId">
                             <option value="">-- Niveau --</option>
                         </select>
+                        <span asp-validation-for="NiveauId" class="text-danger small"></span>
                     </div>
                     <div class="col-md-3">
                         <label asp-for="SalleId" class="form-label small fw-bold">Salle</label>
                         <select asp-for="SalleId" class="form-select form-control-premium" asp-items="ViewBag.SalleId">
                             <option value="">-- Salle --</option>
                         </select>
+                        <span asp-validation-for="SalleId" class="text-danger small"></span>
                     </div>
                 </div>
 
                 <div class="row mb-4 p-3 rounded-4" style="background: rgba(56, 189, 248, 0.06); border: 1px dashed rgba(2, 132, 199, 0.24);">
                     <div class="col-md-6 mb-3 mb-md-0">
                         <label asp-for="HeureDebut" class="form-label small fw-bold">Date & Heure de Début</label>
-                        <input asp-for="HeureDebut" class="form-control form-control-premium" type="datetime-local" />
+                        <input asp-for="HeureDebut" class="form-control form-control-premium" type="datetime-local" id="HeureDebut" />
                         <span asp-validation-for="HeureDebut" class="text-danger small"></span>
                     </div>
                     <div class="col-md-6">
                         <label asp-for="HeureFin" class="form-label small fw-bold">Date & Heure de Fin</label>
-                        <input asp-for="HeureFin" class="form-control form-control-premium" type="datetime-local" />
+                        <input asp-for="HeureFin" class="form-control form-control-premium" type="datetime-local" id="HeureFin" />
                         <span asp-validation-for="HeureFin" class="text-danger small"></span>
+                    </div>
+                    <div class="col-12 mt-3">
+                        <button type="button" id="btnTrouverSalle" class="btn btn-outline-primary btn-sm rounded-pill fw-bold">
+                            <i class="fas fa-search me-1"></i> Trouver une salle disponible
+                        </button>
+                    </div>
+                    <div class="col-12 mt-3" id="resultatsRecherche" style="display: none;">
+                    </div>
+                    <div class="col-12 mt-3" id="resultatsRecherche" style="display: none;">
+                        <div class="alert alert-success py-2 small mb-0">
+                            <i class="fas fa-check-circle me-1"></i> <span id="texteResultats"></span>
+                        </div>
                     </div>
                 </div>
 
@@ -83,4 +97,58 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        document.getElementById('btnTrouverSalle').addEventListener('click', function () {
+            var debut = document.getElementById('HeureDebut').value;
+            var fin = document.getElementById('HeureFin').value;
+            var niveauId = document.getElementById('NiveauId').value;
+            
+            if (!debut || !fin) {
+                alert('Veuillez sélectionner les heures de début et de fin avant de chercher une salle.');
+                return;
+            }
+
+            var btn = this;
+            var originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Recherche...';
+            btn.disabled = true;
+
+            var url = `/Cours/GetSallesDisponibles?debut=${debut}&fin=${fin}`;
+            if (niveauId) {
+                url += `&niveauId=${niveauId}`;
+            }
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    var selectSalle = document.getElementById('SalleId');
+                    var resultatsDiv = document.getElementById('resultatsRecherche');
+                    
+                    selectSalle.innerHTML = '<option value="">-- Sélectionner une salle libre --</option>';
+                    
+                    if (data.length === 0) {
+                        resultatsDiv.style.display = 'block';
+                        resultatsDiv.innerHTML = '<div class="alert alert-danger py-2 small mb-0"><i class="fas fa-times-circle me-1"></i> Aucune salle n\'est disponible pour ce créneau.</div>';
+                    } else {
+                        data.forEach(function (salle) {
+                            var option = document.createElement('option');
+                            option.value = salle.id;
+                            option.text = salle.nom;
+                            selectSalle.appendChild(option);
+                        });
+                        resultatsDiv.style.display = 'block';
+                        resultatsDiv.innerHTML = '<div class="alert alert-success py-2 small mb-0"><i class="fas fa-check-circle me-1"></i> <strong>' + data.length + ' salle(s) trouvée(s) !</strong> Elles ont été ajoutées dans la liste déroulante au-dessus.</div>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Erreur:', error);
+                    alert('Une erreur est survenue lors de la recherche des salles.');
+                })
+                .finally(() => {
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                });
+        });
+    </script>
 }

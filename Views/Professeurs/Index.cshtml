@@ -5,14 +5,28 @@
 }
 
 <div class="card-premium">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
         <div>
             <h4 class="mb-0 fw-bold">Liste des Professeurs</h4>
             <p class="text-muted small">Gérez l'ensemble des enseignants de l'établissement</p>
         </div>
-        <a asp-action="Create" class="btn-premium">
-            <i class="fas fa-plus me-2"></i> Ajouter un Professeur
-        </a>
+        <div class="d-flex gap-3 align-items-center flex-wrap">
+            <form asp-action="Index" method="get" class="d-flex align-items-center gap-2">
+                <input type="text" name="searchString" value="@ViewData["CurrentFilter"]" class="form-control form-control-sm form-control-premium" placeholder="Rechercher par nom..." />
+                <button type="submit" class="btn btn-sm btn-premium">
+                    <i class="fas fa-search"></i>
+                </button>
+                @if (!string.IsNullOrEmpty((string)ViewData["CurrentFilter"]))
+                {
+                    <a asp-action="Index" class="btn btn-sm btn-light border" title="Effacer la recherche">
+                        <i class="fas fa-times"></i>
+                    </a>
+                }
+            </form>
+            <a asp-action="Create" class="btn-premium">
+                <i class="fas fa-plus me-2"></i> Ajouter un Professeur
+            </a>
+        </div>
     </div>
 
     <div class="table-responsive">
@@ -21,6 +35,7 @@
                 <tr>
                     <th class="border-0">Professeur</th>
                     <th class="border-0">Contact</th>
+                    <th class="border-0">Informations Pro.</th>
                     <th class="border-0">Historique (Dernier Cours)</th>
                     <th class="border-0 text-end">Actions</th>
                 </tr>
@@ -44,6 +59,20 @@
                         <td>
                             <div class="small"><i class="far fa-envelope text-muted me-2"></i>@item.Email</div>
                             <div class="small mt-1"><i class="fas fa-phone-alt text-muted me-2"></i>@item.Telephone</div>
+                        </td>
+                        <td>
+                            @if (!string.IsNullOrEmpty(item.Statut)) {
+                                <div class="badge bg-primary-soft text-primary extra-small mb-1">@item.Statut</div>
+                            }
+                            @if (!string.IsNullOrEmpty(item.Fonction)) {
+                                <div class="small text-muted fw-bold">@item.Fonction</div>
+                            }
+                            @if (!string.IsNullOrEmpty(item.Departement)) {
+                                <div class="extra-small text-muted">@item.Departement</div>
+                            }
+                            @if (!string.IsNullOrEmpty(item.Diplome)) {
+                                <div class="extra-small mt-1"><i class="fas fa-graduation-cap text-muted me-1"></i> @item.Diplome</div>
+                            }
                         </td>
                         <td>
                             @if (lastCourse != null) {
@@ -78,6 +107,24 @@
             </tbody>
         </table>
     </div>
+
+    @if (ViewBag.TotalPages > 1)
+    {
+        var prevDisabled = ViewBag.PageNumber == 1 ? "disabled" : "";
+        var nextDisabled = ViewBag.PageNumber == ViewBag.TotalPages ? "disabled" : "";
+        
+        <div class="d-flex justify-content-between align-items-center mt-4">
+            <span class="small text-muted">Page @ViewBag.PageNumber sur @ViewBag.TotalPages</span>
+            <div class="btn-group">
+                <a asp-action="Index" asp-route-pageNumber="@(ViewBag.PageNumber - 1)" asp-route-searchString="@ViewData["CurrentFilter"]" class="btn btn-sm btn-light border @prevDisabled">
+                    <i class="fas fa-chevron-left me-1"></i> Précédent
+                </a>
+                <a asp-action="Index" asp-route-pageNumber="@(ViewBag.PageNumber + 1)" asp-route-searchString="@ViewData["CurrentFilter"]" class="btn btn-sm btn-light border @nextDisabled">
+                    Suivant <i class="fas fa-chevron-right ms-1"></i>
+                </a>
+            </div>
+        </div>
+    }
 </div>
 
 <style>

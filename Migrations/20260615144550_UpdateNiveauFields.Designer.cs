@@ -4,6 +4,7 @@ using GestionSalleEmploiTemps.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GestionSalleEmploiTemps.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260615144550_UpdateNiveauFields")]
+    partial class UpdateNiveauFields
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -163,38 +166,8 @@ namespace GestionSalleEmploiTemps.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Adresse")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("DateNaissance")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("DateRecrutement")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Departement")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("DerniereConnexion")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Diplome")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("DomaineSpecialisation")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("EstActif")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Fonction")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Matricule")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("MotDePasse")
@@ -205,9 +178,6 @@ namespace GestionSalleEmploiTemps.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("NomUtilisateur")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Prenom")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -216,17 +186,8 @@ namespace GestionSalleEmploiTemps.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Sexe")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Statut")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Telephone")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("TitreAcademique")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");

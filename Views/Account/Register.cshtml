@@ -9,20 +9,22 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Inscription - Emit</title>
+    <title>Inscription - EMIT</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <style>
         body {
-            background: linear-gradient(135deg, #0f2742 0%, #0369a1 58%, #38bdf8 100%);
+            background: url('/bg_1-C1H54juf.webp') no-repeat center center fixed;
+            background-size: cover;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             margin: 0;
             padding: 2rem;
+            font-family: 'Inter', sans-serif;
         }
         .register-card {
             background: rgba(255, 255, 255, 0.1);
@@ -31,92 +33,277 @@
             border-radius: 24px;
             padding: 3rem;
             width: 100%;
-            max-width: 600px;
+            max-width: 650px;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-            animation: fadeIn 0.8s ease-out;
         }
-        @@keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .form-label { color: rgba(255, 255, 255, 0.7); font-size: 0.8rem; font-weight: 600; }
+        .form-label { color: rgba(255, 255, 255, 0.9); font-size: 0.85rem; font-weight: 600; }
         .form-control-dark {
-            background: rgba(15, 39, 66, 0.48);
+            background: rgba(15, 39, 66, 0.6);
             border: 1px solid rgba(255, 255, 255, 0.2);
             color: white;
             border-radius: 12px;
-            padding: 0.65rem 1rem;
+            padding: 0.75rem 1rem;
         }
         .form-control-dark:focus {
-            background: rgba(15, 39, 66, 0.62);
+            background: rgba(15, 39, 66, 0.8);
             border-color: #38bdf8;
             box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.24);
             color: white;
         }
-        .btn-register {
+        .form-control-dark option {
+            background-color: #0f2742;
+            color: white;
+        }
+        .btn-custom {
             background: linear-gradient(to right, #0284c7, #38bdf8);
             border: none;
             border-radius: 12px;
-            padding: 0.875rem;
+            padding: 0.875rem 1.5rem;
             font-weight: 700;
             color: white;
             transition: all 0.3s;
         }
-        .btn-register:hover {
+        .btn-custom:hover {
             transform: translateY(-2px);
             box-shadow: 0 10px 15px -3px rgba(2, 132, 199, 0.42);
+        }
+        .btn-outline-custom {
+            background: transparent;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            border-radius: 12px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            color: white;
+            transition: all 0.3s;
+        }
+        .btn-outline-custom:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: white;
+        }
+        .step { display: none; }
+        .step.active { display: block; animation: fadeIn 0.5s ease-out; }
+        @@keyframes fadeIn {
+            from { opacity: 0; transform: translateX(10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        .step-indicators {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+        .step-indicators::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: rgba(255,255,255,0.2);
+            z-index: 1;
+        }
+        .step-indicator {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: #0f2742;
+            border: 2px solid rgba(255,255,255,0.2);
+            color: rgba(255,255,255,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            position: relative;
+            z-index: 2;
+            transition: all 0.3s;
+        }
+        .step-indicator.active {
+            background: #38bdf8;
+            border-color: #38bdf8;
+            color: white;
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.5);
+        }
+        .step-indicator.completed {
+            background: #0284c7;
+            border-color: #0284c7;
+            color: white;
         }
     </style>
 </head>
 <body>
     <div class="register-card">
-        <div class="text-center mb-5">
-            <h2 class="text-white fw-800">Rejoignez Emit</h2>
-            <p class="text-white-50">Créez votre compte professeur en quelques secondes</p>
+        <div class="text-center mb-4">
+            <h2 class="text-white fw-bold">Rejoignez Emit</h2>
+            <p class="text-white-50">Créez votre compte professeur</p>
         </div>
 
-        <form asp-action="Register" method="post">
+        <div class="step-indicators">
+            <div class="step-indicator active" id="ind-1">1</div>
+            <div class="step-indicator" id="ind-2">2</div>
+            <div class="step-indicator" id="ind-3">3</div>
+        </div>
+
+        <form asp-action="Register" method="post" id="registerForm">
             <div asp-validation-summary="ModelOnly" class="text-danger small mb-3"></div>
             
-            <div class="row g-3">
-                <div class="col-md-6 mb-3">
-                    <label asp-for="Nom" class="form-label text-uppercase">Nom</label>
-                    <input asp-for="Nom" class="form-control form-control-dark" placeholder="Ex: Dupont" required />
-                    <span asp-validation-for="Nom" class="text-danger extra-small"></span>
+            <!-- Etape 1 : Informations personnelles & Compte -->
+            <div class="step active" id="step-1">
+                <h5 class="text-white mb-4"><i class="fas fa-user me-2"></i>Informations Personnelles</h5>
+                
+                <div class="row g-3">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Nom" class="form-label text-uppercase">Nom *</label>
+                        <input asp-for="Nom" class="form-control form-control-dark" required />
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Prenom" class="form-label text-uppercase">Prénom *</label>
+                        <input asp-for="Prenom" class="form-control form-control-dark" required />
+                    </div>
                 </div>
-                <div class="col-md-6 mb-3">
-                    <label asp-for="Prenom" class="form-label text-uppercase">Prénom</label>
-                    <input asp-for="Prenom" class="form-control form-control-dark" placeholder="Ex: Jean" required />
-                    <span asp-validation-for="Prenom" class="text-danger extra-small"></span>
+
+                <div class="row g-3">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Sexe" class="form-label text-uppercase">Sexe *</label>
+                        <select asp-for="Sexe" class="form-control form-control-dark" required>
+                            <option value="">Sélectionner</option>
+                            <option value="H">Homme</option>
+                            <option value="F">Femme</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Telephone" class="form-label text-uppercase">Téléphone *</label>
+                        <input asp-for="Telephone" class="form-control form-control-dark" required />
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="NomUtilisateur" class="form-label text-uppercase">Nom d'utilisateur *</label>
+                    <input asp-for="NomUtilisateur" class="form-control form-control-dark" required />
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Email" class="form-label text-uppercase">Email Académique *</label>
+                    <input asp-for="Email" type="email" class="form-control form-control-dark" required />
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="MotDePasse" class="form-label text-uppercase">Mot de passe *</label>
+                    <input asp-for="MotDePasse" type="password" class="form-control form-control-dark" required />
+                </div>
+
+                <div class="d-flex justify-content-end mt-4">
+                    <button type="button" class="btn btn-custom" onclick="nextStep(2)">Suivant <i class="fas fa-arrow-right ms-2"></i></button>
                 </div>
             </div>
 
-            <div class="mb-3">
-                <label asp-for="Email" class="form-label text-uppercase">Adresse Email académique</label>
-                <input asp-for="Email" class="form-control form-control-dark" placeholder="jean.dupont@test.com" required />
-                <span asp-validation-for="Email" class="text-danger extra-small"></span>
+            <!-- Etape 2 : Informations Professionnelles -->
+            <div class="step" id="step-2">
+                <h5 class="text-white mb-4"><i class="fas fa-briefcase me-2"></i>Informations Professionnelles</h5>
+                
+                <div class="row g-3">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Statut" class="form-label text-uppercase">Statut *</label>
+                        <select asp-for="Statut" class="form-control form-control-dark" required>
+                            <option value="">Sélectionner</option>
+                            <option value="Fonctionnaire">Fonctionnaire</option>
+                            <option value="Vacataire">Vacataire</option>
+                            <option value="Stagiaire">Stagiaire</option>
+                            <option value="Contractuel">Contractuel</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Fonction" class="form-label text-uppercase">Fonction *</label>
+                        <select asp-for="Fonction" class="form-control form-control-dark" required>
+                            <option value="">Sélectionner</option>
+                            <option value="Enseignant">Enseignant</option>
+                            <option value="Chef de Mention">Chef de Mention</option>
+                            <option value="Directeur">Directeur</option>
+                            <option value="Chef de Scolarité">Chef de Scolarité</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Departement" class="form-label text-uppercase">Département *</label>
+                        <input asp-for="Departement" class="form-control form-control-dark" placeholder="Ex: Informatique" required />
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="DateRecrutement" class="form-label text-uppercase">Date de recrutement *</label>
+                        <input asp-for="DateRecrutement" type="date" class="form-control form-control-dark" required />
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between mt-4">
+                    <button type="button" class="btn btn-outline-custom" onclick="prevStep(1)"><i class="fas fa-arrow-left me-2"></i> Précédent</button>
+                    <button type="button" class="btn btn-custom" onclick="nextStep(3)">Suivant <i class="fas fa-arrow-right ms-2"></i></button>
+                </div>
             </div>
 
-            <div class="mb-3">
-                <label asp-for="Telephone" class="form-label text-uppercase">Téléphone</label>
-                <input asp-for="Telephone" class="form-control form-control-dark" placeholder="03XXXXXXXX" required />
-                <span asp-validation-for="Telephone" class="text-danger extra-small"></span>
-            </div>
+            <!-- Etape 3 : Informations Académiques -->
+            <div class="step" id="step-3">
+                <h5 class="text-white mb-4"><i class="fas fa-graduation-cap me-2"></i>Informations Académiques</h5>
+                
+                <div class="mb-4">
+                    <label asp-for="Diplome" class="form-label text-uppercase">Diplôme le plus élevé *</label>
+                    <select asp-for="Diplome" class="form-control form-control-dark" required>
+                        <option value="">Sélectionner</option>
+                        <option value="Master 1">Master 1</option>
+                        <option value="Master 2">Master 2</option>
+                        <option value="Doctorat">Doctorat</option>
+                        <option value="Professeur Titulaire">Professeur Titulaire</option>
+                    </select>
+                    <small class="text-white-50 mt-1 d-block"><i class="fas fa-info-circle me-1"></i>Minimum requis : Master</small>
+                </div>
 
-            <div class="mb-4">
-                <label asp-for="MotDePasse" class="form-label text-uppercase">Mot de passe</label>
-                <input asp-for="MotDePasse" type="password" class="form-control form-control-dark" placeholder="Minimum 6 caractères" required />
-                <span asp-validation-for="MotDePasse" class="text-danger extra-small"></span>
-            </div>
-
-            <div class="d-grid mt-4">
-                <button type="submit" class="btn btn-register">Créer mon compte <i class="fas fa-user-plus ms-2"></i></button>
+                <div class="d-flex justify-content-between mt-4">
+                    <button type="button" class="btn btn-outline-custom" onclick="prevStep(2)"><i class="fas fa-arrow-left me-2"></i> Précédent</button>
+                    <button type="submit" class="btn btn-custom">Valider l'inscription <i class="fas fa-check ms-2"></i></button>
+                </div>
             </div>
         </form>
 
-        <div class="text-center mt-4">
-            <p class="small text-white-50">Déjà inscrit ? <a asp-action="Login" class="text-white fw-bold text-decoration-none">Se connecter</a></p>
+        <div class="text-center mt-4 border-top border-secondary pt-3">
+            <p class="small text-white-50 mb-0">Déjà inscrit ? <a asp-action="Login" class="text-white fw-bold text-decoration-none ms-1">Se connecter</a></p>
         </div>
     </div>
+
+    <script>
+        function validateStep(step) {
+            let isValid = true;
+            const currentStep = document.getElementById('step-' + step);
+            const inputs = currentStep.querySelectorAll('input[required], select[required]');
+            
+            inputs.forEach(input => {
+                if (!input.value) {
+                    isValid = false;
+                    input.style.borderColor = '#ef4444';
+                } else {
+                    input.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+                }
+            });
+            return isValid;
+        }
+
+        function nextStep(step) {
+            if (!validateStep(step - 1)) return;
+
+            document.querySelectorAll('.step').forEach(el => el.classList.remove('active'));
+            document.getElementById('step-' + step).classList.add('active');
+            
+            document.getElementById('ind-' + (step - 1)).classList.remove('active');
+            document.getElementById('ind-' + (step - 1)).classList.add('completed');
+            document.getElementById('ind-' + step).classList.add('active');
+        }
+
+        function prevStep(step) {
+            document.querySelectorAll('.step').forEach(el => el.classList.remove('active'));
+            document.getElementById('step-' + step).classList.add('active');
+            
+            document.getElementById('ind-' + (step + 1)).classList.remove('active');
+            document.getElementById('ind-' + step).classList.remove('completed');
+            document.getElementById('ind-' + step).classList.add('active');
+        }
+    </script>
 </body>
 </html>

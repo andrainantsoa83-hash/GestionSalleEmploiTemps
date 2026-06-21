@@ -1,5 +1,7 @@
+@model GestionSalleEmploiTemps.Models.Professeur
+
 @{
-    Layout = null; // No sidebar for login page
+    Layout = null;
 }
 
 <!DOCTYPE html>
@@ -7,117 +9,137 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Connexion - Emit</title>
+    <title>Connexion - Ecole Management et Innovation de la Technologie </title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <style>
         body {
-            background: linear-gradient(135deg, #0f2742 0%, #0369a1 58%, #38bdf8 100%);
-            height: 100vh;
+            background: url('/bg_1-C1H54juf.webp') no-repeat center center fixed;
+            background-size: cover;
+            min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
-            overflow: hidden;
+            padding: 2rem;
         }
         .login-card {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.24);
-            border-radius: 24px;
-            padding: 3rem;
+            background: rgba(255, 255, 255, 0.15); /* Plus transparent */
+            backdrop-filter: blur(15px); /* Plus de flou */
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            padding: 2.5rem;
             width: 100%;
             max-width: 450px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-            animation: fadeIn 0.8s ease-out;
+            animation: fadeIn 0.6s ease-out;
+            color: #ffffff; /* Texte en blanc pour le contraste */
         }
         @@keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        .login-title {
-            color: white;
-            font-weight: 800;
-            letter-spacing: -0.025em;
-            margin-bottom: 0.5rem;
-        }
-        .form-label { color: rgba(255, 255, 255, 0.7); font-size: 0.85rem; font-weight: 600; }
-        .form-control-dark {
-            background: rgba(15, 39, 66, 0.48);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: white;
-            border-radius: 12px;
-            padding: 0.75rem 1rem;
-        }
-        .form-control-dark:focus {
-            background: rgba(15, 39, 66, 0.62);
-            border-color: #38bdf8;
-            box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.24);
-            color: white;
-        }
-        .btn-login {
-            background: linear-gradient(to right, #0284c7, #38bdf8);
-            border: none;
-            border-radius: 12px;
-            padding: 0.875rem;
-            font-weight: 700;
-            color: white;
-            margin-top: 1.5rem;
-            transition: all 0.3s;
-        }
-        .btn-login:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 15px -3px rgba(2, 132, 199, 0.42);
-        }
         .logo-circle {
-            width: 60px;
-            height: 60px;
-            background: white;
-            border-radius: 18px;
+            width: 100px;
+            height: 100px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 2rem;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            margin: 0 auto 1.5rem;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            padding: 10px;
+            transition: transform 0.3s ease;
+        }
+        .logo-circle:hover {
+            transform: scale(1.05);
+        }
+        .login-title {
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 1.4rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+        }
+        .form-label {
+            color: #f8f9fa;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+        .form-control {
+            background-color: rgba(255, 255, 255, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            color: #333;
+        }
+        .form-control:focus {
+            box-shadow: 0 0 10px rgba(52, 152, 219, 0.5);
+            border-color: #3498db;
+            background-color: #ffffff;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            border: none;
+            padding: 0.75rem;
+            font-weight: 600;
+            border-radius: 8px;
+            width: 100%;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #2980b9, #2471a3);
+            transform: translateY(-1px);
+        }
+        .text-muted {
+            color: #e0e0e0 !important;
+        }
+        .text-primary {
+            color: #63b3ed !important;
         }
     </style>
 </head>
 <body>
     <div class="login-card">
         <div class="logo-circle">
-            <i class="fas fa-calendar-alt fa-2x text-primary"></i>
+            <img src="~/images.jpg" alt="Logo EMIT" style="max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 50%;" />
         </div>
-        <div class="text-center mb-4">
-            <h2 class="login-title">Emit</h2>
-            <p class="text-white-50 small">Connectez-vous pour gérer vos cours</p>
-        </div>
+        <h2 class="login-title">EMIT Timetable Management</h2>
+
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success text-center" role="alert" style="background: rgba(40, 167, 69, 0.8); color: white; border: none; font-weight: bold;">
+                @TempData["SuccessMessage"]
+            </div>
+        }
 
         @if (ViewBag.Error != null)
         {
-            <div class="alert alert-danger bg-danger border-0 text-white small rounded-3 py-2 text-center mb-4">
-                <i class="fas fa-exclamation-circle me-2"></i> @ViewBag.Error
+            <div class="alert alert-danger" role="alert" style="background: rgba(220, 53, 69, 0.8); color: white; border: none;">
+                @ViewBag.Error
             </div>
         }
 
         <form asp-action="Login" method="post">
-            @Html.AntiForgeryToken()
-            <div class="mb-3">
-                <label class="form-label">ADRESSE EMAIL</label>
-                <input type="email" name="email" class="form-control form-control-dark" placeholder="Ex: jean.dupont@ecole.fr" required />
+            <div class="mb-4">
+                <label class="form-label text-uppercase small fw-bold">Matricule ou Email</label>
+                <input name="email" class="form-control" placeholder="Entrez votre matricule ou email" required />
             </div>
-            <div class="mb-3">
-                <label class="form-label">MOT DE PASSE</label>
-                <input type="password" name="password" class="form-control form-control-dark" placeholder="••••••••" required />
+
+            <div class="mb-4">
+                <label class="form-label text-uppercase small fw-bold">Mot de passe</label>
+                <input name="password" type="password" class="form-control" placeholder="••••••••" required />
             </div>
-            <div class="d-grid">
-                <button type="submit" class="btn btn-login">Se Connecter <i class="fas fa-arrow-right ms-2"></i></button>
-            </div>
+
+            <button type="submit" class="btn btn-primary mt-2">Se connecter</button>
         </form>
 
-        <div class="text-center mt-4">
-            <p class="small text-white-50">Pas encore de compte ? <a asp-action="Register" class="text-white fw-bold text-decoration-none border-bottom border-white border-2">S'inscrire gratuitement</a></p>
+        <div class="text-center mt-4 pt-3 border-top" style="border-color: rgba(255,255,255,0.2) !important;">
+            <span class="text-muted small">Pas encore de compte ?</span>
+            <a asp-action="Register" class="text-primary small fw-bold text-decoration-none ms-1">S'inscrire</a>
         </div>
     </div>
 </body>

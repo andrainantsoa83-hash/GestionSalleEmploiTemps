@@ -14,14 +14,25 @@
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
         <div>
             <h4 class="mb-0 fw-bold">Planning Hebdomadaire</h4>
-            <p class="text-muted small mb-0">Cliquez sur un creneau disponible pour reserver un cours dans une salle libre.</p>
+            @{
+                var niveaux = ViewBag.Niveaux as List<GestionSalleEmploiTemps.Models.Niveau> ?? new List<GestionSalleEmploiTemps.Models.Niveau>();
+                var selectedNiveau = niveaux.FirstOrDefault(n => n.Id == ViewBag.SelectedNiveauId);
+                var niveauText = selectedNiveau != null ? $"Niveau {selectedNiveau.Nom} -" : "Tous les niveaux -";
+            }
+            <p class="text-muted small mb-0">@niveauText Semaine du @(((DateTime)ViewBag.CurrentWeekDate).ToString("dd/MM/yyyy"))</p>
         </div>
         <div class="d-flex gap-3 align-items-center flex-wrap">
+            <div class="d-flex gap-2 me-3">
+                <a asp-action="Index" asp-route-niveauId="@ViewBag.SelectedNiveauId" asp-route-profFilterId="@ViewBag.SelectedProfFilterId" asp-route-weekDate="@(((DateTime)ViewBag.CurrentWeekDate).AddDays(-7).ToString("yyyy-MM-dd"))" class="btn btn-sm btn-outline-secondary"><i class="fas fa-chevron-left"></i> Précédent</a>
+                <a asp-action="Index" asp-route-niveauId="@ViewBag.SelectedNiveauId" asp-route-profFilterId="@ViewBag.SelectedProfFilterId" asp-route-weekDate="@DateTime.Today.ToString("yyyy-MM-dd")" class="btn btn-sm btn-outline-primary">Aujourd'hui</a>
+                <a asp-action="Index" asp-route-niveauId="@ViewBag.SelectedNiveauId" asp-route-profFilterId="@ViewBag.SelectedProfFilterId" asp-route-weekDate="@(((DateTime)ViewBag.CurrentWeekDate).AddDays(7).ToString("yyyy-MM-dd"))" class="btn btn-sm btn-outline-secondary">Suivant <i class="fas fa-chevron-right"></i></a>
+            </div>
             <form method="get" asp-action="Index" class="d-flex align-items-center gap-3 flex-wrap">
+                <input type="hidden" name="weekDate" value="@(((DateTime)ViewBag.CurrentWeekDate).ToString("yyyy-MM-dd"))" />
                 <div class="d-flex align-items-center gap-2">
                     <label class="small fw-bold text-muted text-nowrap">NIVEAU :</label>
                     <select name="niveauId" class="form-select form-select-sm form-control-premium" onchange="this.form.submit()">
-                        <option value="">Tous</option>
+                        <option value="" disabled>-- Sélectionner un niveau --</option>
                         @foreach (var niv in ViewBag.Niveaux as List<GestionSalleEmploiTemps.Models.Niveau> ?? new List<GestionSalleEmploiTemps.Models.Niveau>())
                         {
                             <option value="@niv.Id" selected="@(ViewBag.SelectedNiveauId == niv.Id)">@niv.Nom</option>
@@ -70,6 +81,9 @@
                 {
                     var slot = slots[slotIndex];
                     var slotEnd = slotIndex + 1 < slots.Length ? slots[slotIndex + 1] : slot + 2;
+                    
+                    if (slot == 12) continue; // Skip the 12h-14h break
+
                     var slotStartTime = TimeSpan.FromHours(slot);
                     var slotEndTime = TimeSpan.FromHours(slotEnd);
 
@@ -83,50 +97,63 @@
                                 ? roomAvailability[availabilityKey]
                                 : new List<string>();
 
-                            var coursStarting = Model.FirstOrDefault(c =>
-                                (int)c.HeureDebut.DayOfWeek == dayValue &&
-                                c.HeureDebut.Hour == slot);
-                            var coursInProgress = coursStarting ?? Model.FirstOrDefault(c =>
+                            var coursDansCeCreneau = Model.Where(c =>
                                 (int)c.HeureDebut.DayOfWeek == dayValue &&
                                 c.HeureDebut.TimeOfDay < slotEndTime &&
-                                c.HeureFin.TimeOfDay > slotStartTime);
+                                c.HeureFin.TimeOfDay > slotStartTime).ToList();
 
-                            <td class="p-1">
-                                @if (coursInProgress != null)
+                            <td class="p-1" style="vertical-align: top;">
+                                <div style="display: flex; flex-direction: column; gap: 6px; max-height: 250px; overflow-y: auto; padding-right: 2px;">
+                                @if (coursDansCeCreneau.Any())
                                 {
-                                    <div class="course-card reserved @(coursStarting == null ? "course-continuation" : "")">
-                                        <div class="fw-bold extra-small">
-                                            @(coursStarting == null ? "Suite : " : "")@coursInProgress.Matiere
+                                    foreach (var coursInProgress in coursDansCeCreneau)
+                                    {
+                                        var isStarting = coursInProgress.HeureDebut.TimeOfDay >= slotStartTime && coursInProgress.HeureDebut.TimeOfDay < slotEndTime;
+                                        <div class="course-card reserved @(!isStarting ? "course-continuation" : "") mb-1" style="box-shadow: 0 2px 4px rgba(0,0,0,0.1); border-radius: 6px; padding: 6px; transition: transform 0.2s;">
+                                            <div class="fw-bold extra-small" style="font-size: 0.8rem;">
+                                                @(!isStarting ? "Suite : " : "")@coursInProgress.Matiere
+                                            </div>
+                                            <div class="tiny text-white" style="font-size: 0.75rem;">
+                                                <i class="fas fa-clock"></i> @coursInProgress.HeureDebut.ToString("HH:mm") - @coursInProgress.HeureFin.ToString("HH:mm")
+                                            </div>
+                                            <div class="tiny text-white" style="font-size: 0.75rem;">
+                                                <i class="fas fa-user-tie"></i> @(professeurs.ContainsKey(coursInProgress.ProfesseurId) ? professeurs[coursInProgress.ProfesseurId] : "Prof")
+                                            </div>
+                                            <div class="tiny text-white" style="font-size: 0.75rem;">
+                                                <i class="fas fa-map-marker-alt"></i> @(salles.ContainsKey(coursInProgress.SalleId) ? salles[coursInProgress.SalleId] : "Salle")
+                                            </div>
+                                            <div class="d-flex gap-2 mt-2 pt-2 border-top border-light border-opacity-25">
+                                                @if (User.IsInRole("Admin") || coursInProgress.ProfesseurId.ToString() == User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value)
+                                                {
+                                                    <a asp-action="Edit" asp-route-id="@coursInProgress.Id" class="text-white tiny text-decoration-none fw-bold" style="font-size: 0.75rem;">
+                                                        <i class="fas fa-edit"></i> Editer
+                                                    </a>
+                                                    <a asp-action="Delete" asp-route-id="@coursInProgress.Id" class="text-white tiny text-decoration-none fw-bold" style="font-size: 0.75rem;">
+                                                        <i class="fas fa-trash"></i> Annuler
+                                                    </a>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-white-50 tiny" style="font-size: 0.7rem;"><i class="fas fa-lock"></i> Verrouillé</span>
+                                                }
+                                            </div>
                                         </div>
-                                        <div class="tiny text-white-50">
-                                            <i class="fas fa-clock"></i> @coursInProgress.HeureDebut.ToString("HH:mm") - @coursInProgress.HeureFin.ToString("HH:mm")
-                                        </div>
-                                        <div class="tiny text-white-50">
-                                            <i class="fas fa-user-tie"></i> @(professeurs.ContainsKey(coursInProgress.ProfesseurId) ? professeurs[coursInProgress.ProfesseurId] : "Prof")
-                                        </div>
-                                        <div class="tiny text-white-50">
-                                            <i class="fas fa-map-marker-alt"></i> @(salles.ContainsKey(coursInProgress.SalleId) ? salles[coursInProgress.SalleId] : "Salle")
-                                        </div>
-                                        <div class="d-flex gap-2 mt-1">
-                                            <a asp-action="Edit" asp-route-id="@coursInProgress.Id" class="text-white opacity-50 tiny text-decoration-none">
-                                                <i class="fas fa-edit"></i> Editer
-                                            </a>
-                                            <a asp-action="Delete" asp-route-id="@coursInProgress.Id" class="text-white opacity-50 tiny text-decoration-none">
-                                                <i class="fas fa-trash"></i> Annuler
-                                            </a>
-                                        </div>
-                                    </div>
+                                    }
+                                    <a asp-action="Create" asp-route-day="@dayValue" asp-route-hour="@slot" asp-route-endHour="@slotEnd" asp-route-weekDate="@(((DateTime)ViewBag.CurrentWeekDate).ToString("yyyy-MM-dd"))" class="text-center d-block tiny text-muted text-decoration-none mt-1 p-1 bg-light rounded" style="font-size: 0.75rem;">
+                                        <i class="fas fa-plus"></i> Ajouter un cours
+                                    </a>
                                 }
                                 else
                                 {
-                                    <a asp-action="Create" asp-route-day="@dayValue" asp-route-hour="@slot" asp-route-endHour="@slotEnd" class="course-card available text-decoration-none">
-                                        <i class="fas fa-plus-circle mb-1"></i>
-                                        <span class="tiny fw-bold">LIBRE</span>
-                                        <div class="tiny opacity-75 mt-1" title="Salles libres : @string.Join(", ", freeRooms)">
+                                    <a asp-action="Create" asp-route-day="@dayValue" asp-route-hour="@slot" asp-route-endHour="@slotEnd" asp-route-weekDate="@(((DateTime)ViewBag.CurrentWeekDate).ToString("yyyy-MM-dd"))" class="course-card available text-decoration-none h-100 d-flex flex-column align-items-center justify-content-center p-2" style="min-height: 80px; border: 1px dashed rgba(25,135,84,0.5); background: rgba(25,135,84,0.08); border-radius: 6px;">
+                                        <i class="fas fa-plus-circle mb-1 text-success"></i>
+                                        <span class="tiny fw-bold text-success" style="font-size: 0.8rem;">LIBRE</span>
+                                        <div class="tiny text-success mt-1 text-center fw-bold" title="Salles libres : @string.Join(", ", freeRooms)" style="font-size: 0.75rem;">
                                             <i class="fas fa-door-open"></i> @freeRooms.Count dispo.
                                         </div>
                                     </a>
                                 }
+                                </div>
                             </td>
                         }
                     </tr>

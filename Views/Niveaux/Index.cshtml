@@ -21,6 +21,7 @@
                 <tr>
                     <th class="border-0 rounded-start">Nom</th>
                     <th class="border-0">Description</th>
+                    <th class="border-0">Salle(s) Attitrée(s)</th>
                     <th class="border-0 text-center rounded-end" style="width: 150px;">Actions</th>
                 </tr>
             </thead>
@@ -30,6 +31,19 @@
                         <td class="fw-bold text-primary">@item.Nom</td>
                         <td>
                             <span class="text-muted small">@(string.IsNullOrEmpty(item.Description) ? "Aucune description" : item.Description)</span>
+                        </td>
+                        <td>
+                            @if (ViewBag.SallesParNiveau != null && ((Dictionary<int, List<string>>)ViewBag.SallesParNiveau).ContainsKey(item.Id))
+                            {
+                                foreach (var salleNom in ((Dictionary<int, List<string>>)ViewBag.SallesParNiveau)[item.Id])
+                                {
+                                    <span class="badge bg-info text-white extra-small me-1">@salleNom</span>
+                                }
+                            }
+                            else
+                            {
+                                <span class="text-muted small italic">Aucune salle</span>
+                            }
                         </td>
                         <td class="text-center">
                             <div class="d-flex justify-content-center gap-2">

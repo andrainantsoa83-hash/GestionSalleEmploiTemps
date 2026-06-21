@@ -21,6 +21,10 @@ namespace GestionSalleEmploiTemps.Controllers
         {
             var salles = await _context.Salles.ToListAsync();
             
+            // Dictionnaire des niveaux pour l'affichage
+            var niveaux = await _context.Niveaux.ToDictionaryAsync(n => n.Id, n => n.Nom);
+            ViewBag.NiveauxDict = niveaux;
+
             // Trouver les salles occupées à l'instant T
             var now = DateTime.Now;
             var occupiedSalleIds = await _context.Cours

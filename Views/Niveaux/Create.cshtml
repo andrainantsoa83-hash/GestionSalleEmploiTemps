@@ -19,14 +19,31 @@
                 <div asp-validation-summary="ModelOnly" class="text-danger mb-3 small"></div>
                 
                 <div class="mb-3">
-                    <label asp-for="Nom" class="form-label small fw-bold">Nom du Niveau</label>
-                    <input asp-for="Nom" class="form-control form-control-premium" placeholder="ex: L1 Informatique, L2 Management..." />
+                    <label asp-for="Nom" class="form-label small fw-bold">Niveau (Année d'étude)</label>
+                    <input asp-for="Nom" class="form-control form-control-premium" placeholder="ex: L1, L2, M1, M2..." required />
                     <span asp-validation-for="Nom" class="text-danger small"></span>
                 </div>
 
+                <div class="mb-3">
+                    <label asp-for="Mention" class="form-label small fw-bold">Mention</label>
+                    <select asp-for="Mention" class="form-control form-control-premium" required>
+                        <option value="">Sélectionnez une mention...</option>
+                        <option value="Informatique">Informatique</option>
+                        <option value="Management">Management</option>
+                        <option value="Communication">Communication</option>
+                    </select>
+                    <span asp-validation-for="Mention" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Parcours" class="form-label small fw-bold">Parcours (Sigle)</label>
+                    <input asp-for="Parcours" class="form-control form-control-premium" placeholder="ex: DA2I" required />
+                    <span asp-validation-for="Parcours" class="text-danger small"></span>
+                </div>
+
                 <div class="mb-4">
-                    <label asp-for="Description" class="form-label small fw-bold">Description (Optionnel)</label>
-                    <textarea asp-for="Description" class="form-control form-control-premium" rows="3" placeholder="ex: Developpement d'application internet et intranet"></textarea>
+                    <label asp-for="Description" class="form-label small fw-bold">Signification complète du parcours</label>
+                    <textarea asp-for="Description" class="form-control form-control-premium" rows="2" placeholder="ex: Developpement d'application internet et intranet"></textarea>
                     <span asp-validation-for="Description" class="text-danger small"></span>
                 </div>
 
