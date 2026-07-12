@@ -1,0 +1,91 @@
+@{
+    Layout = null;
+    ViewData["Title"] = "Accueil";
+}
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - EMIT</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+        body { 
+            background: linear-gradient(rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.65)), url('/bg_1-C1H54juf.webp') no-repeat center center fixed;
+            background-size: cover;
+            color: #ffffff;
+        }
+        .logo-img { 
+            width: 140px; 
+            height: 140px; 
+            border-radius: 50%; 
+            object-fit: contain; 
+            background: #ffffff; 
+            padding: 10px; 
+            box-shadow: 0 0 25px rgba(255,255,255,0.4); 
+            margin-bottom: 2rem; 
+        }
+        .text-shadow {
+            text-shadow: 2px 2px 4px rgba(0,0,0,1), 0px 0px 20px rgba(0,0,0,0.8);
+        }
+        h1, h2, h3, h4, p {
+            color: #ffffff !important;
+            opacity: 1 !important;
+            text-shadow: 2px 2px 5px rgba(0,0,0,1), 0px 0px 15px rgba(0,0,0,0.8) !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container py-5 mt-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-10 text-center">
+                <div class="mb-5">
+                    <img src="~/images.jpg" alt="Logo EMIT" class="logo-img" />
+                    <br />
+                    <h1 class="display-2 fw-bolder mb-3">EMIT</h1>
+                    <h2 class="display-6 fw-bolder mb-5">École de Management et d'Innovation Technologique</h2>
+                </div>
+
+                <div class="py-3 mb-5">
+                    <p class="fw-bolder" style="font-size: 2rem; line-height: 1.5;">
+                        Bienvenue sur la plateforme de gestion des emplois du temps et d'allocation des salles.
+                    </p>
+                </div>
+
+                <div class="row g-4 mt-2 justify-content-center">
+                    <div class="col-md-4">
+                        <div class="p-3">
+                            <h4 class="h2 fw-bolder mb-3">Direction</h4>
+                            <p class="fw-bolder" style="font-size: 1.4rem;">Directeur et Chefs de mention (Licence & Master)</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="p-3 border-start border-end border-light border-opacity-50">
+                            <h4 class="h2 fw-bolder mb-3">Professeurs</h4>
+                            <p class="fw-bolder" style="font-size: 1.4rem;">Consultation et gestion des plannings de cours</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="p-3">
+                            <h4 class="h2 fw-bolder mb-3">Planification</h4>
+                            <p class="fw-bolder" style="font-size: 1.4rem;">Organisation optimale des emplois du temps</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-5 pt-5">
+                    <p class="fw-bolder mb-4" style="font-size: 1.5rem;">
+                        Cet espace est exclusivement réservé au corps administratif et professoral de l'EMIT.
+                    </p>
+                    <a asp-controller="Account" asp-action="Login" class="btn btn-primary btn-lg rounded-pill px-5 py-3 fw-bolder mt-2 shadow-lg border-0" style="background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); font-size: 1.5rem;">
+                        Se connecter pour accéder
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

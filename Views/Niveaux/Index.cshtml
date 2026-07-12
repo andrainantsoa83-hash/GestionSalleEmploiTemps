@@ -1,4 +1,4 @@
-@model IEnumerable<GestionSalleEmploiTemps.Models.Niveau>
+@model GestionSalleEmploiTemps.Models.NiveauxIndexViewModel
 
 @{
     ViewData["Title"] = "Gestion des Niveaux";
@@ -15,35 +15,33 @@
         </a>
     </div>
 
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <form asp-action="Index" method="get" class="d-flex">
+                <div class="input-group">
+                    <input type="text" name="searchString" value="@Model.SearchString" class="form-control" placeholder="Rechercher par nom ou description..." />
+                    <button type="submit" class="btn btn-outline-primary"><i class="fas fa-search"></i> Rechercher</button>
+                    <a asp-action="Index" class="btn btn-outline-secondary">Effacer</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <div class="table-responsive">
         <table class="table table-hover align-middle">
             <thead class="bg-light">
                 <tr>
                     <th class="border-0 rounded-start">Nom</th>
                     <th class="border-0">Description</th>
-                    <th class="border-0">Salle(s) Attitrée(s)</th>
                     <th class="border-0 text-center rounded-end" style="width: 150px;">Actions</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach (var item in Model) {
+                @foreach (var item in Model.Niveaux) {
                     <tr>
                         <td class="fw-bold text-primary">@item.Nom</td>
                         <td>
                             <span class="text-muted small">@(string.IsNullOrEmpty(item.Description) ? "Aucune description" : item.Description)</span>
-                        </td>
-                        <td>
-                            @if (ViewBag.SallesParNiveau != null && ((Dictionary<int, List<string>>)ViewBag.SallesParNiveau).ContainsKey(item.Id))
-                            {
-                                foreach (var salleNom in ((Dictionary<int, List<string>>)ViewBag.SallesParNiveau)[item.Id])
-                                {
-                                    <span class="badge bg-info text-white extra-small me-1">@salleNom</span>
-                                }
-                            }
-                            else
-                            {
-                                <span class="text-muted small italic">Aucune salle</span>
-                            }
                         </td>
                         <td class="text-center">
                             <div class="d-flex justify-content-center gap-2">
@@ -57,11 +55,11 @@
                         </td>
                     </tr>
                 }
-                @if (!Model.Any()) {
+                @if (!Model.Niveaux.Any()) {
                     <tr>
-                        <td colspan="3" class="text-center py-5">
+                        <td colspan="4" class="text-center py-5">
                             <i class="fas fa-layer-group fa-3x text-muted opacity-25 mb-3"></i>
-                            <p class="text-muted">Aucun niveau enregistre pour le moment.</p>
+                            <p class="text-muted">Aucun niveau enregistré pour le moment.</p>
                             <a asp-action="Create" class="btn btn-outline-primary btn-sm rounded-pill">Ajouter le premier niveau</a>
                         </td>
                     </tr>
@@ -69,4 +67,41 @@
             </tbody>
         </table>
     </div>
+
+    @if (Model.TotalPages > 1)
+    {
+        <div class="d-flex justify-content-between align-items-center mt-4">
+            <span class="text-muted small">Page @Model.PageIndex sur @Model.TotalPages</span>
+            
+            <nav aria-label="Pagination">
+                <ul class="pagination pagination-sm mb-0">
+                    <li class="page-item @(!Model.HasPreviousPage ? "disabled" : "")">
+                        <a class="page-link" asp-action="Index" asp-route-pageNumber="1" asp-route-searchString="@Model.SearchString" title="Première">
+                            <i class="fas fa-angle-double-left"></i> Première
+                        </a>
+                    </li>
+                    <li class="page-item @(!Model.HasPreviousPage ? "disabled" : "")">
+                        <a class="page-link" asp-action="Index" asp-route-pageNumber="@(Model.PageIndex - 1)" asp-route-searchString="@Model.SearchString" title="Précédente">
+                            <i class="fas fa-angle-left"></i> Préc.
+                        </a>
+                    </li>
+                    
+                    <li class="page-item active" aria-current="page">
+                        <span class="page-link">@Model.PageIndex</span>
+                    </li>
+                    
+                    <li class="page-item @(!Model.HasNextPage ? "disabled" : "")">
+                        <a class="page-link" asp-action="Index" asp-route-pageNumber="@(Model.PageIndex + 1)" asp-route-searchString="@Model.SearchString" title="Suivante">
+                            Suiv. <i class="fas fa-angle-right"></i>
+                        </a>
+                    </li>
+                    <li class="page-item @(!Model.HasNextPage ? "disabled" : "")">
+                        <a class="page-link" asp-action="Index" asp-route-pageNumber="@Model.TotalPages" asp-route-searchString="@Model.SearchString" title="Dernière">
+                            Dernière <i class="fas fa-angle-double-right"></i>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    }
 </div>

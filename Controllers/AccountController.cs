@@ -78,7 +78,106 @@ namespace GestionSalleEmploiTemps.Controllers
             return View();
         }
 
-        // GET: Account/Register
+        // GET: Account/Profil
+        [Authorize]
+        public async Task<IActionResult> Profil()
+        {
+            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            
+            if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
+            {
+                return RedirectToAction("Login");
+            }
+
+            var professeur = await _context.Professeurs.FirstOrDefaultAsync(p => p.Id == userId);
+
+            if (professeur == null)
+            {
+                return NotFound("Utilisateur introuvable.");
+            }
+
+            return View(professeur);
+        }
+
+        // GET: Account/ModifierPersonnel
+        [Authorize]
+        public async Task<IActionResult> ModifierPersonnel()
+        {
+            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId)) return RedirectToAction("Login");
+
+            var professeur = await _context.Professeurs.FirstOrDefaultAsync(p => p.Id == userId);
+            if (professeur == null) return NotFound();
+
+            return View(professeur);
+        }
+
+        // POST: Account/ModifierPersonnel
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ModifierPersonnel([Bind("Id,Nom,Prenom,Sexe,DateNaissance,Telephone,Email,Adresse")] Professeur modele)
+        {
+            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId) || userId != modele.Id) return Unauthorized();
+
+            if (ModelState.IsValid)
+            {
+                var prof = await _context.Professeurs.FindAsync(userId);
+                if (prof == null) return NotFound();
+
+                prof.Nom = modele.Nom;
+                prof.Prenom = modele.Prenom;
+                prof.Sexe = modele.Sexe;
+                prof.DateNaissance = modele.DateNaissance;
+                prof.Telephone = modele.Telephone;
+                prof.Email = modele.Email;
+                prof.Adresse = modele.Adresse;
+
+                await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "Informations personnelles mises à jour avec succès.";
+                return RedirectToAction(nameof(Profil));
+            }
+            return View(modele);
+        }
+
+        // GET: Account/ModifierProfessionnel
+        [Authorize]
+        public async Task<IActionResult> ModifierProfessionnel()
+        {
+            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId)) return RedirectToAction("Login");
+
+            var professeur = await _context.Professeurs.FirstOrDefaultAsync(p => p.Id == userId);
+            if (professeur == null) return NotFound();
+
+            return View(professeur);
+        }
+
+        // POST: Account/ModifierProfessionnel
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ModifierProfessionnel([Bind("Id,Diplome,TitreAcademique,DomaineSpecialisation")] Professeur modele)
+        {
+            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId) || userId != modele.Id) return Unauthorized();
+
+            if (ModelState.IsValid)
+            {
+                var prof = await _context.Professeurs.FindAsync(userId);
+                if (prof == null) return NotFound();
+
+                prof.Diplome = modele.Diplome;
+                prof.TitreAcademique = modele.TitreAcademique;
+                prof.DomaineSpecialisation = modele.DomaineSpecialisation;
+
+                await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "Informations professionnelles mises à jour avec succès.";
+                return RedirectToAction(nameof(Profil));
+            }
+            return View(modele);
+        }
         public IActionResult Register()
         {
             return View();
@@ -87,7 +186,7 @@ namespace GestionSalleEmploiTemps.Controllers
         // POST: Account/Register
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Register([Bind("Nom,Prenom,Email,Telephone,MotDePasse,Sexe,DateRecrutement,Statut,Fonction,Departement,Diplome,NomUtilisateur")] Professeur professeur)
+        public async Task<IActionResult> Register([Bind("Nom,Prenom,Email,Telephone,MotDePasse,Sexe,DateRecrutement,Statut,Fonction,Departement,Diplome,TitreAcademique,DomaineSpecialisation,NomUtilisateur")] Professeur professeur)
         {
             if (ModelState.IsValid)
             {

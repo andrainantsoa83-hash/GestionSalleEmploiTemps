@@ -1,0 +1,77 @@
+@model GestionSalleEmploiTemps.Models.Professeur
+
+@{
+    ViewData["Title"] = "Modifier mes Informations Personnelles";
+}
+
+<div class="container py-4 max-w-700px" style="max-width: 700px; margin: 0 auto;">
+    
+    <div class="text-center mb-5 border-bottom pb-4">
+        <h2 class="fw-bold text-uppercase tracking-wide text-primary">INFORMATIONS PERSONNELLES</h2>
+    </div>
+
+    <form asp-action="ModifierPersonnel" method="post">
+        <input type="hidden" asp-for="Id" />
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+        <div class="mb-5">
+            <div class="px-3">
+                <div class="row mb-3">
+                    <div class="col-sm-6">
+                        <label asp-for="Nom" class="form-label fw-bold text-muted">Nom <span class="text-danger">*</span></label>
+                        <input asp-for="Nom" class="form-control" required />
+                        <span asp-validation-for="Nom" class="text-danger small"></span>
+                    </div>
+                    <div class="col-sm-6">
+                        <label asp-for="Prenom" class="form-label fw-bold text-muted">Prénom <span class="text-danger">*</span></label>
+                        <input asp-for="Prenom" class="form-control" required />
+                        <span asp-validation-for="Prenom" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-sm-6">
+                        <label asp-for="Sexe" class="form-label fw-bold text-muted">Sexe</label>
+                        <select asp-for="Sexe" class="form-select">
+                            <option value="">Non renseigné</option>
+                            <option value="M">Masculin</option>
+                            <option value="F">Féminin</option>
+                        </select>
+                    </div>
+                    <div class="col-sm-6">
+                        <label asp-for="DateNaissance" class="form-label fw-bold text-muted">Date de naissance</label>
+                        <input asp-for="DateNaissance" type="date" class="form-control" />
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-sm-6">
+                        <label asp-for="Telephone" class="form-label fw-bold text-muted">Téléphone</label>
+                        <input asp-for="Telephone" class="form-control" />
+                    </div>
+                    <div class="col-sm-6">
+                        <label asp-for="Email" class="form-label fw-bold text-muted">Email <span class="text-danger">*</span></label>
+                        <input asp-for="Email" type="email" class="form-control" required />
+                        <span asp-validation-for="Email" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Adresse" class="form-label fw-bold text-muted">Adresse</label>
+                    <textarea asp-for="Adresse" class="form-control" rows="2"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center border-top pt-4">
+            <div class="d-flex justify-content-center gap-3">
+                <a asp-action="Profil" class="btn btn-outline-secondary px-4 py-2 fw-bold">Annuler</a>
+                <button type="submit" class="btn btn-primary px-5 py-2 fw-bold">Enregistrer</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

@@ -35,8 +35,8 @@
                asp-controller="Niveaux" asp-action="Index">
                 <i class="fas fa-layer-group"></i> Niveaux
             </a>
-            <a class="nav-link-custom @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Professeurs" && ViewContext.RouteData.Values["Action"]?.ToString() == "Profil" ? "active" : "")" 
-               asp-controller="Professeurs" asp-action="Profil">
+            <a class="nav-link-custom @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Account" && ViewContext.RouteData.Values["Action"]?.ToString() == "Profil" ? "active" : "")" 
+               asp-controller="Account" asp-action="Profil">
                 <i class="fas fa-user-circle"></i> Profil
             </a>
         </nav>

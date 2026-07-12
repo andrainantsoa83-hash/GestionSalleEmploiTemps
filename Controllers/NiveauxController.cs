@@ -16,19 +16,33 @@ namespace GestionSalleEmploiTemps.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string searchString, int pageNumber = 1)
         {
-            var niveaux = await _context.Niveaux.ToListAsync();
-            
-            // Récupérer les salles associées à chaque niveau
-            var sallesParNiveau = await _context.Salles
-                .Where(s => s.NiveauId != null)
-                .GroupBy(s => s.NiveauId)
-                .ToDictionaryAsync(g => g.Key.Value, g => g.Select(s => s.Nom).ToList());
-                
-            ViewBag.SallesParNiveau = sallesParNiveau;
+            int pageSize = 5;
 
-            return View(niveaux);
+            var query = _context.Niveaux.AsQueryable();
+
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                query = query.Where(n => n.Nom.Contains(searchString) || n.Description.Contains(searchString));
+            }
+
+            int count = await query.CountAsync();
+            var niveaux = await query
+                .OrderBy(n => n.Nom)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            var viewModel = new NiveauxIndexViewModel
+            {
+                Niveaux = niveaux,
+                PageIndex = pageNumber,
+                TotalPages = (int)Math.Ceiling(count / (double)pageSize),
+                SearchString = searchString
+            };
+
+            return View(viewModel);
         }
 
         public IActionResult Create()

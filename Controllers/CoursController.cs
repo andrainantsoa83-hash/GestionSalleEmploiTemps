@@ -5,6 +5,9 @@ using GestionSalleEmploiTemps.Data;
 using GestionSalleEmploiTemps.Models;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Hosting;
+using System.IO;
+using GestionSalleEmploiTemps.Services;
 
 namespace GestionSalleEmploiTemps.Controllers
 {
@@ -12,11 +15,63 @@ namespace GestionSalleEmploiTemps.Controllers
     public class CoursController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly IWebHostEnvironment _env;
+        private readonly IPdfGeneratorService _pdfService;
         private static readonly int[] PlanningHours = { 7, 8, 10, 12, 14, 16 };
 
-        public CoursController(ApplicationDbContext context)
+        public CoursController(ApplicationDbContext context, IWebHostEnvironment env, IPdfGeneratorService pdfService)
         {
             _context = context;
+            _env = env;
+            _pdfService = pdfService;
+        }
+
+        private DateTime GetStartOfWeek(DateTime date)
+        {
+            int diff = (7 + (date.DayOfWeek - DayOfWeek.Monday)) % 7;
+            return date.AddDays(-1 * diff).Date;
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> GeneratePdf(int niveauId, int? salleId, string weekDate)
+        {
+            var niveau = await _context.Niveaux.FindAsync(niveauId);
+            if (niveau == null) return NotFound();
+
+            var nomSalle = "Non affectée";
+            if (salleId.HasValue)
+            {
+                var salle = await _context.Salles.FindAsync(salleId.Value);
+                nomSalle = salle?.Nom ?? nomSalle;
+            }
+
+            DateTime dateDebutSemaine;
+            if (!DateTime.TryParse(weekDate, out dateDebutSemaine))
+            {
+                dateDebutSemaine = GetStartOfWeek(DateTime.Today);
+            }
+            DateTime dateFinSemaine = dateDebutSemaine.AddDays(7);
+
+            var cours = await _context.Cours
+                .Include(c => c.Professeur)
+                .Include(c => c.Salle)
+                .Where(c => c.NiveauId == niveauId && c.HeureDebut >= dateDebutSemaine && c.HeureDebut < dateFinSemaine)
+                .ToListAsync();
+
+            string logoPath = Path.Combine(_env.WebRootPath, "images.jpg");
+
+            var model = new EmploiTempsPdfModel
+            {
+                NiveauNom = niveau.Nom,
+                SemaineText = $"du {dateDebutSemaine:dd/MM/yyyy} au {dateFinSemaine.AddDays(-1):dd/MM/yyyy}",
+                LogoPath = logoPath,
+                CoursList = cours
+            };
+
+            byte[] pdfBytes = _pdfService.GenerateEmploiTempsPdf(model);
+
+            string fileName = $"EmploiTemps_{niveau.Nom.Replace(" ", "_")}_{DateTime.Now:yyyyMMdd_HHmmss}.pdf";
+            return File(pdfBytes, "application/pdf", fileName);
         }
 
         // GET: Cours
@@ -32,11 +87,9 @@ namespace GestionSalleEmploiTemps.Controllers
 
             var coursQuery = _context.Cours.Where(c => c.HeureDebut >= monday && c.HeureDebut < saturday);
             
-            if (isProf)
-            {
-                coursQuery = coursQuery.Where(c => c.ProfesseurId == currentProfId);
-            }
-            else if (profFilterId.HasValue)
+            // On ne filtre plus automatiquement sur le professeur courant :
+            // Tous les professeurs peuvent VOIR l'emploi du temps complet du niveau.
+            if (profFilterId.HasValue)
             {
                 coursQuery = coursQuery.Where(c => c.ProfesseurId == profFilterId.Value);
             }
@@ -102,13 +155,18 @@ namespace GestionSalleEmploiTemps.Controllers
         }
 
         // GET: Cours/Create
-        public async Task<IActionResult> Create(int? day, int? hour, int? endHour, DateTime? weekDate)
+        public async Task<IActionResult> Create(int? day, int? hour, int? endHour, DateTime? weekDate, int? niveauId)
         {
             var isAdmin = User.IsInRole("Admin");
             var currentProfId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
             
             var cours = new Cours();
             if (!isAdmin) cours.ProfesseurId = currentProfId;
+
+            if (niveauId.HasValue)
+            {
+                cours.NiveauId = niveauId.Value;
+            }
 
             if (day.HasValue && hour.HasValue)
             {
@@ -158,10 +216,6 @@ namespace GestionSalleEmploiTemps.Controllers
                 {
                     ModelState.AddModelError("", "Conflit détecté : La salle est déjà occupée sur ce créneau.");
                 }
-                else if (ModelState.IsValid && await HasProfesseurConflict(cours))
-                {
-                    ModelState.AddModelError("", "Conflit detecte : Le professeur a deja un cours sur ce creneau.");
-                }
                 else if (ModelState.IsValid)
                 {
                     _context.Add(cours);
@@ -199,6 +253,11 @@ namespace GestionSalleEmploiTemps.Controllers
             var isAdmin = User.IsInRole("Admin");
             var currentProfId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
+            // Securité : vérifier le cours original
+            var originalCours = await _context.Cours.AsNoTracking().FirstOrDefaultAsync(c => c.Id == id);
+            if (originalCours == null) return NotFound();
+            if (!isAdmin && originalCours.ProfesseurId != currentProfId) return Unauthorized();
+
             if (!isAdmin) cours.ProfesseurId = currentProfId;
 
             ModelState.Remove("Professeur");
@@ -214,10 +273,6 @@ namespace GestionSalleEmploiTemps.Controllers
                     if (ModelState.IsValid && await HasSalleConflict(cours, cours.Id))
                     {
                         ModelState.AddModelError("", "Conflit détecté : La salle est déjà occupée sur ce créneau.");
-                    }
-                    else if (ModelState.IsValid && await HasProfesseurConflict(cours, cours.Id))
-                    {
-                        ModelState.AddModelError("", "Conflit detecte : Le professeur a deja un cours sur ce creneau.");
                     }
                     else if (ModelState.IsValid)
                     {
@@ -269,10 +324,14 @@ namespace GestionSalleEmploiTemps.Controllers
             var cours = await _context.Cours.FindAsync(id);
             if (cours != null)
             {
+                var isAdmin = User.IsInRole("Admin");
+                var currentProfId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+                if (!isAdmin && cours.ProfesseurId != currentProfId) return Unauthorized();
+
                 _context.Cours.Remove(cours);
+                await _context.SaveChangesAsync();
             }
 
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 

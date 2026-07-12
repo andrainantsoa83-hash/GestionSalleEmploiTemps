@@ -5,8 +5,14 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 
 using Microsoft.AspNetCore.Authorization;
+using QuestPDF.Infrastructure;
+
+using GestionSalleEmploiTemps.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+QuestPDF.Settings.License = LicenseType.Community;
+
+builder.Services.AddScoped<IPdfGeneratorService, PdfGeneratorService>();
 
 // Add services to the container.
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -257,6 +263,6 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=Home}/{action=Landing}/{id?}");
 
 app.Run();

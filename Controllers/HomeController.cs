@@ -1,11 +1,13 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using GestionSalleEmploiTemps.Models;
 using GestionSalleEmploiTemps.Data;
 
 namespace GestionSalleEmploiTemps.Controllers;
 
+[AllowAnonymous]
 public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
@@ -17,6 +19,17 @@ public class HomeController : Controller
         _context = context;
     }
 
+    [AllowAnonymous]
+    public IActionResult Landing()
+    {
+        // Si l'utilisateur est déjà connecté, on l'envoie vers le tableau de bord
+        if (User.Identity.IsAuthenticated)
+            return RedirectToAction("Index");
+            
+        return View();
+    }
+
+    [Authorize]
     public async Task<IActionResult> Index()
     {
         var profCount = await _context.Professeurs.CountAsync();
