@@ -75,10 +75,10 @@ namespace GestionSalleEmploiTemps.Controllers
         }
 
         // GET: Cours
-        public async Task<IActionResult> Index(int? niveauId, int? profFilterId, DateTime? weekDate)
+        public async Task<IActionResult> Index(int? salleId, int? profFilterId, DateTime? weekDate)
         {
             var isProf = User.IsInRole("Professeur");
-            var currentProfId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out int currentProfId);
 
             DateTime currentDate = weekDate ?? DateTime.Today;
             int diff = (7 + (currentDate.DayOfWeek - DayOfWeek.Monday)) % 7;
@@ -88,33 +88,34 @@ namespace GestionSalleEmploiTemps.Controllers
             var coursQuery = _context.Cours.Where(c => c.HeureDebut >= monday && c.HeureDebut < saturday);
             
             // On ne filtre plus automatiquement sur le professeur courant :
-            // Tous les professeurs peuvent VOIR l'emploi du temps complet du niveau.
+            // Tous les professeurs peuvent VOIR l'emploi du temps complet de la salle.
             if (profFilterId.HasValue)
             {
                 coursQuery = coursQuery.Where(c => c.ProfesseurId == profFilterId.Value);
             }
 
-            if (!niveauId.HasValue)
+            if (!salleId.HasValue)
             {
-                var firstNiveau = await _context.Niveaux.FirstOrDefaultAsync();
-                if (firstNiveau != null)
+                var firstSalle = await _context.Salles.OrderBy(s => s.Nom).FirstOrDefaultAsync();
+                if (firstSalle != null)
                 {
-                    niveauId = firstNiveau.Id;
+                    salleId = firstSalle.Id;
                 }
             }
 
-            if (niveauId.HasValue)
+            if (salleId.HasValue)
             {
-                coursQuery = coursQuery.Where(c => c.NiveauId == niveauId.Value);
+                coursQuery = coursQuery.Where(c => c.SalleId == salleId.Value);
             }
 
-            ViewBag.Niveaux = await _context.Niveaux.ToListAsync();
-            ViewBag.SelectedNiveauId = niveauId;
+            ViewBag.SallesDisponibles = await _context.Salles.OrderBy(s => s.Nom).ToListAsync();
+            ViewBag.SelectedSalleId = salleId;
             ViewBag.SelectedProfFilterId = profFilterId;
             ViewBag.CurrentWeekDate = monday;
             
             ViewBag.Professeurs = await _context.Professeurs.ToDictionaryAsync(p => p.Id, p => $"{p.Nom} {p.Prenom}");
             ViewBag.Salles = await _context.Salles.ToDictionaryAsync(s => s.Id, s => s.Nom);
+            ViewBag.Niveaux = await _context.Niveaux.ToDictionaryAsync(n => n.Id, n => n.Nom);
             ViewBag.PlanningHours = PlanningHours;
 
             // Calculer la disponibilité des salles pour chaque créneau de cette semaine spécifique
@@ -155,17 +156,17 @@ namespace GestionSalleEmploiTemps.Controllers
         }
 
         // GET: Cours/Create
-        public async Task<IActionResult> Create(int? day, int? hour, int? endHour, DateTime? weekDate, int? niveauId)
+        public async Task<IActionResult> Create(int? day, int? hour, int? endHour, DateTime? weekDate, int? salleId)
         {
             var isAdmin = User.IsInRole("Admin");
-            var currentProfId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out int currentProfId);
             
             var cours = new Cours();
             if (!isAdmin) cours.ProfesseurId = currentProfId;
 
-            if (niveauId.HasValue)
+            if (salleId.HasValue)
             {
-                cours.NiveauId = niveauId.Value;
+                cours.SalleId = salleId.Value;
             }
 
             if (day.HasValue && hour.HasValue)
@@ -197,7 +198,7 @@ namespace GestionSalleEmploiTemps.Controllers
         public async Task<IActionResult> Create([Bind("Id,Matiere,HeureDebut,HeureFin,ProfesseurId,SalleId,NiveauId")] Cours cours)
         {
             var isAdmin = User.IsInRole("Admin");
-            var currentProfId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out int currentProfId);
 
             if (!isAdmin)
             {
@@ -220,7 +221,7 @@ namespace GestionSalleEmploiTemps.Controllers
                 {
                     _context.Add(cours);
                     await _context.SaveChangesAsync();
-                    return RedirectToAction(nameof(Index));
+                    return RedirectToAction(nameof(Index), new { salleId = cours.SalleId });
                 }
             }
             await LoadFormSelectLists(cours);
@@ -236,7 +237,7 @@ namespace GestionSalleEmploiTemps.Controllers
             if (cours == null) return NotFound();
 
             var isAdmin = User.IsInRole("Admin");
-            var currentProfId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out int currentProfId);
             if (!isAdmin && cours.ProfesseurId != currentProfId) return Unauthorized();
 
             await LoadFormSelectLists(cours, cours.Id);
@@ -251,7 +252,7 @@ namespace GestionSalleEmploiTemps.Controllers
             if (id != cours.Id) return NotFound();
 
             var isAdmin = User.IsInRole("Admin");
-            var currentProfId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out int currentProfId);
 
             // Securité : vérifier le cours original
             var originalCours = await _context.Cours.AsNoTracking().FirstOrDefaultAsync(c => c.Id == id);
@@ -278,7 +279,7 @@ namespace GestionSalleEmploiTemps.Controllers
                     {
                         _context.Update(cours);
                         await _context.SaveChangesAsync();
-                        return RedirectToAction(nameof(Index));
+                        return RedirectToAction(nameof(Index), new { salleId = cours.SalleId });
                     }
                 }
                 catch (DbUpdateConcurrencyException)
@@ -307,7 +308,7 @@ namespace GestionSalleEmploiTemps.Controllers
             }
 
             var isAdmin = User.IsInRole("Admin");
-            var currentProfId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out int currentProfId);
             if (!isAdmin && cours.ProfesseurId != currentProfId) return Unauthorized();
 
             ViewBag.Professeur = await _context.Professeurs.FirstOrDefaultAsync(p => p.Id == cours.ProfesseurId);
@@ -322,17 +323,19 @@ namespace GestionSalleEmploiTemps.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var cours = await _context.Cours.FindAsync(id);
+            int? salleId = null;
             if (cours != null)
             {
                 var isAdmin = User.IsInRole("Admin");
-                var currentProfId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+                int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out int currentProfId);
                 if (!isAdmin && cours.ProfesseurId != currentProfId) return Unauthorized();
 
+                salleId = cours.SalleId;
                 _context.Cours.Remove(cours);
                 await _context.SaveChangesAsync();
             }
 
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Index), new { salleId = salleId });
         }
 
         private bool CoursExists(int id)

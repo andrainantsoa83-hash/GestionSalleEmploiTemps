@@ -15,30 +15,39 @@
             <img src="~/images.jpg" alt="Logo EMIT" style="max-width: 65px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);" />
         </div>
         <nav class="sidebar-nav">
-            <a class="nav-link-custom @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Home" ? "active" : "")" 
+            <a class="nav-link-custom @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Home" && ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "active" : "")" 
                asp-controller="Home" asp-action="Index">
                 <i class="fas fa-th-large"></i> Dashboard
             </a>
-            <a class="nav-link-custom @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Cours" ? "active" : "")" 
-               asp-controller="Cours" asp-action="Index">
-                <i class="fas fa-book-open"></i> Cours
-            </a>
             <a class="nav-link-custom @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Salles" ? "active" : "")" 
                asp-controller="Salles" asp-action="Index">
-                <i class="fas fa-door-open"></i> Salle
-            </a>
-            <a class="nav-link-custom @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Cours" ? "active" : "")" 
-               asp-controller="Cours" asp-action="Index">
-                <i class="fas fa-calendar-alt"></i> Emploi du temps
+                <i class="fas fa-door-open"></i> Salles
             </a>
             <a class="nav-link-custom @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Niveaux" ? "active" : "")" 
                asp-controller="Niveaux" asp-action="Index">
                 <i class="fas fa-layer-group"></i> Niveaux
             </a>
+            <a class="nav-link-custom @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Cours" && ViewContext.RouteData.Values["Action"]?.ToString() == "Create" ? "active" : "")" 
+               asp-controller="Cours" asp-action="Create">
+                <i class="fas fa-book-open"></i> Cours
+            </a>
+            <a class="nav-link-custom @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Cours" && ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "active" : "")" 
+               asp-controller="Cours" asp-action="Index">
+                <i class="fas fa-calendar-alt"></i> Emploi du Temps
+            </a>
             <a class="nav-link-custom @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Account" && ViewContext.RouteData.Values["Action"]?.ToString() == "Profil" ? "active" : "")" 
                asp-controller="Account" asp-action="Profil">
                 <i class="fas fa-user-circle"></i> Profil
             </a>
+            <a class="nav-link-custom @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Home" && ViewContext.RouteData.Values["Action"]?.ToString() == "Indications" ? "active" : "")" 
+               asp-controller="Home" asp-action="Indications">
+                <i class="fas fa-info-circle"></i> Indications
+            </a>
+            <form asp-controller="Account" asp-action="Logout" method="post" class="mt-2">
+                <button type="submit" class="nav-link-custom text-danger border-0 bg-transparent w-100 text-start" style="cursor: pointer;">
+                    <i class="fas fa-sign-out-alt"></i> Déconnexion
+                </button>
+            </form>
         </nav>
         <div class="p-3 border-top border-secondary">
             <div class="d-flex align-items-center gap-2 text-white">

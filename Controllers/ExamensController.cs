@@ -22,7 +22,7 @@ namespace GestionSalleEmploiTemps.Controllers
         public async Task<IActionResult> Index(int? coursId)
         {
             var isAdmin = User.IsInRole("Admin");
-            var currentProfId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out int currentProfId);
 
             var examensQuery = _context.Examens
                 .Include(e => e.Cours)
@@ -152,7 +152,7 @@ namespace GestionSalleEmploiTemps.Controllers
             examen.Commentaire = commentaire;
             examen.DateValidation = DateTime.Now;
 
-            var currentProfId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out int currentProfId);
             examen.ValidateurId = currentProfId;
 
             if (estReussi)

@@ -29,6 +29,11 @@ public class HomeController : Controller
         return View();
     }
 
+    public IActionResult Indications()
+    {
+        return View();
+    }
+
     [Authorize]
     public async Task<IActionResult> Index()
     {

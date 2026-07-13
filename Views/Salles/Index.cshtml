@@ -88,7 +88,7 @@
                             </div>
                             @if (b != "A")
                             {
-                                <a asp-controller="Cours" asp-action="Index" class="text-primary extra-small text-decoration-none fw-bold">
+                                <a asp-controller="Cours" asp-action="Index" asp-route-salleId="@item.Id" class="text-primary extra-small text-decoration-none fw-bold">
                                     PLANNING <i class="fas fa-calendar-alt ms-1"></i>
                                 </a>
                             }

@@ -1,0 +1,42 @@
+@{
+    ViewData["Title"] = "Indications et Guide d'Utilisation";
+}
+
+<div class="container py-4">
+    <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-header bg-primary text-white border-bottom-0 pt-4 pb-3 rounded-top-4">
+            <h4 class="mb-0 fw-bold"><i class="fas fa-info-circle me-2"></i> Bienvenue sur le Guide d'Utilisation</h4>
+        </div>
+        <div class="card-body p-4">
+            <p class="lead">Ce document a pour objectif de vous expliquer l'utilisation de la plateforme de gestion des emplois du temps et d'allocation des salles de l'EMIT.</p>
+
+            <h5 class="fw-bold text-primary mt-4 mb-3 border-bottom pb-2">1. Dashboard</h5>
+            <p>Le Dashboard vous offre une vue globale et en temps réel de votre établissement. Vous y trouverez le nombre de salles de cours, de professeurs et les statistiques d'occupation globales.</p>
+
+            <h5 class="fw-bold text-primary mt-4 mb-3 border-bottom pb-2">2. Gestion des Salles et des Niveaux</h5>
+            <p><strong>Niveaux :</strong> Vous pouvez créer et consulter la liste des niveaux d'études de l'établissement (ex: L1, L2, L3, Master). Chaque niveau permet de structurer les emplois du temps.</p>
+            <p><strong>Salles :</strong> Ajoutez, modifiez ou supprimez les salles physiques disponibles dans l'établissement, en renseignant leur capacité et leur disponibilité globale.</p>
+
+            <h5 class="fw-bold text-primary mt-4 mb-3 border-bottom pb-2">3. Gestion des Cours et Emplois du Temps</h5>
+            <p>Pour ajouter un cours, cliquez sur le menu <strong>Cours</strong> ou accédez à <strong>Emploi du temps</strong>. Depuis la grille hebdomadaire :</p>
+            <p>- Choisissez une salle dans le menu déroulant en haut de la page.</p>
+            <p>- Cliquez sur une case vide pour "Ajouter un cours" à ce moment précis.</p>
+            <p>- Renseignez la matière et l'enseignant. Un vérificateur de conflits s'assurera qu'il n'y a aucune double affectation.</p>
+
+            <h5 class="fw-bold text-primary mt-4 mb-3 border-bottom pb-2">4. Génération PDF</h5>
+            <p>Sur la page de l'emploi du temps, un bouton rouge <strong>Générer PDF</strong> est disponible. En cliquant dessus, le système exporte automatiquement le planning exact affiché sur votre écran, de façon propre et imprimable au format A4 paysage.</p>
+
+            <h5 class="fw-bold text-primary mt-4 mb-3 border-bottom pb-2">5. Profil Utilisateur</h5>
+            <p>Dans la section <strong>Profil</strong>, vous avez accès à vos informations privées. Vous y trouverez :</p>
+            <p>- Un bouton pour modifier vos <strong>informations personnelles</strong> (Nom, email, téléphone, adresse...).</p>
+            <p>- Un bouton pour modifier vos <strong>informations professionnelles</strong> (Diplôme, Titre, Spécialité).</p>
+
+            <h5 class="fw-bold text-danger mt-5 mb-3 border-bottom border-danger pb-2"><i class="fas fa-exclamation-triangle me-2"></i> Règles Importantes de la plateforme</h5>
+            <div class="p-3 bg-light rounded-3 border-start border-danger border-4">
+                <p class="mb-2"><strong>1. Affectation des Salles :</strong> Chaque salle possède son propre emploi du temps. Vous filtrez les cours par salle.</p>
+                <p class="mb-2"><strong>2. Visibilité :</strong> Un cours apparaît <em>uniquement</em> dans l'emploi du temps de la salle où il a été programmé, garantissant qu'il n'y a pas de duplication illogique.</p>
+                <p class="mb-0"><strong>3. Sécurité d'accès :</strong> Seul le <strong>Chef de Scolarité</strong> (ayant le rôle Administrateur) est autorisé à gérer les salles, créer des niveaux, ou valider les modifications globales de l'emploi du temps.</p>
+            </div>
+        </div>
+    </div>
+</div>
